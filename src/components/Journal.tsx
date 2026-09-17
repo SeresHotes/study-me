@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import type { Entry, Trackable } from '../types';
@@ -150,10 +150,9 @@ export default function Journal({
             <button
               key={t.id}
               className="quick-btn"
-              style={{ borderColor: color }}
+              style={{ '--qc': color } as CSSProperties}
               onClick={() => setAdding(t)}
             >
-              <span className="quick-dot" style={{ background: color }} />
               <span className="quick-icon">{typeMeta(t.type).icon}</span>
               <span className="quick-name">{t.name}</span>
             </button>

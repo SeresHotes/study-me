@@ -1,48 +1,65 @@
+/* Тёплая «кремовая» тема в стиле rare-yes-tracker.
+   Тёмная тема — согласованный «эспрессо»-вариант того же характера.
+   --accent — цвет активных/основных элементов, --on-accent — текст на нём. */
 :root {
-  --bg: #0f1117;
-  --surface: #171a23;
-  --surface-2: #1f2330;
-  --border: #2a2f3e;
-  --text: #e8eaf0;
-  --text-dim: #9aa0b0;
-  --accent: #6c5ce7;
-  --accent-2: #8b7bf0;
-  --danger: #e74c6c;
-  --ok: #22c55e;
-  --radius: 14px;
-  --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-  --chart-grid: #2c2c2a;
-  --chart-axis: #898781;
-  --chart-baseline: #383835;
+  --bg: #f8f5ef;
+  --surface: #fffaf3;
+  --surface-2: #f0e8dd;
+  --border: #ebe1d4;
+  --text: #2b2824;
+  --text-dim: #766d64;
+  --accent: #2b2824;
+  --accent-2: #9a7362;
+  --on-accent: #fffaf3;
+  --danger: #a83228;
+  --danger-soft: #ffe2df;
+  --ok: #4f8a3d;
+  --radius: 24px;
+  --radius-sm: 16px;
+  --shadow: 0 18px 45px rgba(55, 44, 31, 0.1);
+  --chart-grid: #ebe1d4;
+  --chart-axis: #a99a86;
+  --chart-baseline: #d8cbb8;
 }
 
-/* Светлая тема: применяется при data-theme="light" ЛИБО при системной светлой,
-   если пользователь не форсировал тёмную (data-theme отсутствует). */
-:root[data-theme='light'] {
-  --bg: #f5f6fa;
-  --surface: #ffffff;
-  --surface-2: #eef0f6;
-  --border: #e0e3ec;
-  --text: #1c1f2a;
-  --text-dim: #6b7180;
-  --shadow: 0 6px 20px rgba(30, 34, 50, 0.08);
-  --chart-grid: #e1e0d9;
-  --chart-axis: #898781;
-  --chart-baseline: #c3c2b7;
+/* Тёмная («эспрессо») тема: data-theme="dark" или системная тёмная. */
+:root[data-theme='dark'] {
+  --bg: #201b16;
+  --surface: #2a231d;
+  --surface-2: #362d25;
+  --border: #40352b;
+  --text: #f3ece2;
+  --text-dim: #b3a695;
+  --accent: #efe4d3;
+  --accent-2: #c99f6f;
+  --on-accent: #2b2019;
+  --danger: #f0a79b;
+  --danger-soft: #4a2a25;
+  --ok: #9cc98a;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+  --chart-grid: #40352b;
+  --chart-axis: #8f8172;
+  --chart-baseline: #4a3d31;
 }
 
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
-    --bg: #f5f6fa;
-    --surface: #ffffff;
-    --surface-2: #eef0f6;
-    --border: #e0e3ec;
-    --text: #1c1f2a;
-    --text-dim: #6b7180;
-    --shadow: 0 6px 20px rgba(30, 34, 50, 0.08);
-    --chart-grid: #e1e0d9;
-    --chart-axis: #898781;
-    --chart-baseline: #c3c2b7;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #201b16;
+    --surface: #2a231d;
+    --surface-2: #362d25;
+    --border: #40352b;
+    --text: #f3ece2;
+    --text-dim: #b3a695;
+    --accent: #efe4d3;
+    --accent-2: #c99f6f;
+    --on-accent: #2b2019;
+    --danger: #f0a79b;
+    --danger-soft: #4a2a25;
+    --ok: #9cc98a;
+    --shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+    --chart-grid: #40352b;
+    --chart-axis: #8f8172;
+    --chart-baseline: #4a3d31;
   }
 }
 
@@ -60,8 +77,10 @@ body,
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: ui-rounded, 'SF Pro Rounded', 'SF Pro Display', system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
 .app {
@@ -81,9 +100,8 @@ body {
   justify-content: space-between;
   padding: 14px 16px calc(14px + env(safe-area-inset-top));
   padding-top: max(14px, env(safe-area-inset-top));
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(18px);
 }
 
 .brand {
@@ -144,10 +162,10 @@ body {
   padding: 12px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   animation: slide-up 0.2s ease;
 }
 
@@ -160,24 +178,25 @@ body {
 /* ---- Buttons ---- */
 .btn {
   appearance: none;
-  border: 1px solid var(--border);
+  border: 0;
   background: var(--surface-2);
   color: var(--text);
-  padding: 11px 16px;
-  border-radius: 12px;
+  padding: 11px 18px;
+  border-radius: 999px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: transform 0.05s ease, background 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
 }
 
 .btn:active {
   transform: scale(0.97);
+  filter: brightness(0.98);
 }
 
 .btn:disabled {
@@ -187,14 +206,12 @@ body {
 
 .btn-primary {
   background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .btn-sm {
-  padding: 7px 12px;
+  padding: 8px 13px;
   font-size: 14px;
-  border-radius: 10px;
 }
 
 .btn-ghost {
@@ -202,8 +219,8 @@ body {
 }
 
 .btn-danger {
+  background: var(--danger-soft);
   color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
 }
 
 .btn-block {
@@ -317,10 +334,10 @@ textarea,
 select {
   font: inherit;
   color: var(--text);
-  background: var(--surface-2);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 11px;
-  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  padding: 12px 13px;
   width: 100%;
 }
 
@@ -344,8 +361,9 @@ textarea {
 
 /* ---- Page bits ---- */
 .page-title {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
   margin: 4px 0 16px;
 }
 
@@ -384,28 +402,27 @@ textarea {
   display: flex;
   gap: 4px;
   background: var(--surface-2);
-  padding: 4px;
-  border-radius: 12px;
+  padding: 5px;
+  border-radius: 999px;
   margin: 16px 0;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 9px;
-  border-radius: 9px;
+  padding: 10px;
+  border-radius: 999px;
   border: none;
   background: transparent;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 14px;
   cursor: pointer;
 }
 
 .tab.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* ---- Trackable inputs ---- */
@@ -429,7 +446,7 @@ textarea {
 .chip.selected {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .scale-row {
@@ -452,7 +469,7 @@ textarea {
 .scale-btn.selected {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .trackable-input {
@@ -651,39 +668,35 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   padding: 16px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
+  border: 0;
+  border-radius: 23px;
+  background: var(--qc, var(--accent));
+  color: #fff;
   cursor: pointer;
   text-align: left;
-  min-height: 92px;
-  transition: transform 0.05s ease;
+  min-height: 94px;
+  font-weight: 900;
+  box-shadow: inset 0 -20px 35px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(60, 40, 20, 0.12);
+  transition: transform 0.08s ease, filter 0.08s ease;
 }
 
 .quick-btn:active {
   transform: scale(0.97);
-}
-
-.quick-dot {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  filter: brightness(0.98);
 }
 
 .quick-icon {
   font-size: 24px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
 }
 
 .quick-name {
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 900;
+  font-size: 16px;
   line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
 }
 
 /* ---- Модалка (bottom sheet) ---- */
@@ -702,7 +715,7 @@ textarea {
   width: 100%;
   max-width: 640px;
   background: var(--bg);
-  border-radius: 20px 20px 0 0;
+  border-radius: 24px 24px 0 0;
   border-top: 1px solid var(--border);
   padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
   display: flex;
@@ -789,7 +802,7 @@ textarea {
   aspect-ratio: 1;
   border: 1px solid var(--border);
   background: var(--surface);
-  border-radius: 10px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -946,8 +959,8 @@ textarea {
   display: flex;
   gap: 4px;
   background: var(--surface-2);
-  padding: 4px;
-  border-radius: 12px;
+  padding: 5px;
+  border-radius: 999px;
 }
 
 .seg-btn {
@@ -955,10 +968,10 @@ textarea {
   border: none;
   background: transparent;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 13px;
-  padding: 8px 6px;
-  border-radius: 9px;
+  padding: 9px 6px;
+  border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
 }
