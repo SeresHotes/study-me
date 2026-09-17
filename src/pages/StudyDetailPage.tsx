@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import type { Trackable } from '../types';
+import type { Study, Trackable } from '../types';
 import { deleteStudy, deleteTrackable, setStudyStatus, updateTrackable } from '../db/service';
 import { formatDate, studyProgress } from '../lib/date';
 import { typeMeta, typeLabel } from '../lib/trackables';
@@ -10,6 +10,7 @@ import { suggestColor, trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
 import { useT } from '../lib/i18n';
 import AddTrackableForm from '../components/AddTrackableForm';
+import EditStudyForm from '../components/EditStudyForm';
 import ColorPalette from '../components/ColorPalette';
 import Journal from '../components/Journal';
 import StatsView from '../components/StatsView';
@@ -80,19 +81,14 @@ export default function StudyDetailPage() {
 
 // ---- Показатели и настройки ----
 
-function TrackablesTab({
-  study,
-  trackables,
-}: {
-  study: { id: string; name: string; status: string };
-  trackables: Trackable[];
-}) {
+function TrackablesTab({ study, trackables }: { study: Study; trackables: Trackable[] }) {
   const { t: tr } = useT();
   const navigate = useNavigate();
   const isDark = useIsDark();
   const [adding, setAdding] = useState(false);
   const [editingColor, setEditingColor] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingStudy, setEditingStudy] = useState(false);
 
   async function handleDeleteStudy() {
     if (!confirm(tr('metrics.confirmDeleteStudy', { name: study.name }))) return;
@@ -184,6 +180,13 @@ function TrackablesTab({
       <div className="section-title" style={{ marginTop: 16 }}>
         {tr('metrics.studySection')}
       </div>
+      {editingStudy ? (
+        <EditStudyForm study={study} onDone={() => setEditingStudy(false)} />
+      ) : (
+        <button className="btn btn-block" onClick={() => setEditingStudy(true)}>
+          {tr('metrics.editStudy')}
+        </button>
+      )}
       {study.status === 'active' ? (
         <button className="btn btn-block" onClick={() => setStudyStatus(study.id, 'archived')}>
           {tr('metrics.archive')}
