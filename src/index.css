@@ -677,6 +677,15 @@ textarea {
   font-weight: 700;
 }
 
+.sheet-mode {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 @keyframes fade {
   from {
     opacity: 0;
@@ -924,9 +933,10 @@ textarea {
   background: var(--surface);
 }
 
-.chip-filter.off {
-  opacity: 0.45;
-  text-decoration: line-through;
+.chip-filter.active {
+  border-width: 2px;
+  padding: 6px 11px;
+  background: var(--surface-2);
 }
 
 /* ---- Графики (SVG) ---- */
@@ -1013,4 +1023,10 @@ textarea {
 
 .td-val {
   font-weight: 600;
+}
+
+.td-act {
+  width: 36px;
+  text-align: right;
+  white-space: nowrap;
 }

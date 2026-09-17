@@ -7,6 +7,7 @@ import { formatValue, typeMeta } from '../lib/trackables';
 import { trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
 import { deleteEntry } from '../db/service';
+import QuickLogModal from './QuickLogModal';
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const MONTHS = [
@@ -29,6 +30,7 @@ export default function MonthCalendar({
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selected, setSelected] = useState<string>(dayKey(now.toISOString()));
+  const [editing, setEditing] = useState<Entry | null>(null);
 
   const entries = useLiveQuery(
     () => db.entries.where('studyId').equals(studyId).toArray(),
@@ -146,8 +148,13 @@ export default function MonthCalendar({
                 <span className="entry-value">{t ? formatValue(t, e.value) : String(e.value)}</span>
                 {e.note && <span className="note">{e.note}</span>}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <span className="entry-time">{formatTime(e.loggedAt)}</span>
+                {t && (
+                  <button className="icon-btn" title="Изменить" onClick={() => setEditing(e)}>
+                    ✎
+                  </button>
+                )}
                 <button className="icon-btn" title="Удалить" onClick={() => deleteEntry(e.id)}>
                   ✕
                 </button>
@@ -155,6 +162,16 @@ export default function MonthCalendar({
             </div>
           );
         })
+      )}
+
+      {editing && byTrackable[editing.trackableId] && (
+        <QuickLogModal
+          studyId={studyId}
+          trackable={byTrackable[editing.trackableId]}
+          entry={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => setEditing(null)}
+        />
       )}
     </div>
   );

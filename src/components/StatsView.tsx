@@ -8,6 +8,7 @@ import { trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
 import { computeStats, computeDistribution } from '../lib/stats';
 import { LineChart, BarChart, DotPlot, DistBars } from './Charts';
+import QuickLogModal from './QuickLogModal';
 
 type Preset = '7' | '30' | '90' | 'all';
 const PRESETS: { key: Preset; label: string }[] = [
@@ -38,7 +39,7 @@ export default function StatsView({
 }) {
   const isDark = useIsDark();
   const [preset, setPreset] = useState<Preset>('30');
-  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [sel, setSel] = useState<string | null>(null); // null = все показатели
   const [table, setTable] = useState(false);
 
   const entries = useLiveQuery(
@@ -71,20 +72,12 @@ export default function StatsView({
       : startOfDay(Date.now()) - (Number(preset) - 1) * DAY;
 
   const inRange = (e: Entry) => ts(e.loggedAt) >= from;
-  const shown = trackables.filter((t) => !hidden.has(t.id));
+  const shown = sel === null ? trackables : trackables.filter((t) => t.id === sel);
 
   const rangeEntries = entries.filter(inRange);
-  const totalEntries = rangeEntries.length;
-  const activeDays = new Set(rangeEntries.map((e) => dayKey(e.loggedAt))).size;
-
-  function toggle(id: string) {
-    setHidden((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
+  const scopedEntries = rangeEntries.filter((e) => sel === null || e.trackableId === sel);
+  const totalEntries = scopedEntries.length;
+  const activeDays = new Set(scopedEntries.map((e) => dayKey(e.loggedAt))).size;
 
   return (
     <div className="stack">
@@ -110,16 +103,23 @@ export default function StatsView({
           </button>
         </div>
         <div className="chips filter-chips">
+          <button
+            className={`chip chip-filter ${sel === null ? 'active' : ''}`}
+            onClick={() => setSel(null)}
+          >
+            Все
+          </button>
           {trackables.map((t) => {
             const c = resolveColor(trackableColor(t), isDark);
-            const off = hidden.has(t.id);
+            const active = sel === t.id;
             return (
               <button
                 key={t.id}
-                className={`chip chip-filter ${off ? 'off' : ''}`}
-                onClick={() => toggle(t.id)}
+                className={`chip chip-filter ${active ? 'active' : ''}`}
+                style={active ? { borderColor: c } : undefined}
+                onClick={() => setSel(t.id)}
               >
-                <span className="dot" style={{ background: off ? 'var(--text-dim)' : c }} />
+                <span className="dot" style={{ background: c }} />
                 {t.name}
               </button>
             );
@@ -143,7 +143,7 @@ export default function StatsView({
       </div>
 
       {table ? (
-        <TableView trackables={trackables} entries={rangeEntries.filter((e) => !hidden.has(e.trackableId))} />
+        <TableView studyId={studyId} trackables={trackables} entries={scopedEntries} />
       ) : (
         shown.map((t) => {
           const rows = (byTrackable[t.id] ?? []).filter(inRange);
@@ -275,7 +275,16 @@ function timeToMin(v: EntryValue): number | null {
   return Number(m[1]) * 60 + Number(m[2]);
 }
 
-function TableView({ trackables, entries }: { trackables: Trackable[]; entries: Entry[] }) {
+function TableView({
+  studyId,
+  trackables,
+  entries,
+}: {
+  studyId: string;
+  trackables: Trackable[];
+  entries: Entry[];
+}) {
+  const [editing, setEditing] = useState<Entry | null>(null);
   const byId = useMemo(() => {
     const m: Record<string, Trackable> = {};
     for (const t of trackables) m[t.id] = t;
@@ -294,6 +303,7 @@ function TableView({ trackables, entries }: { trackables: Trackable[]; entries: 
             <th>Когда</th>
             <th>Показатель</th>
             <th>Значение</th>
+            <th aria-label="Действия" />
           </tr>
         </thead>
         <tbody>
@@ -309,11 +319,28 @@ function TableView({ trackables, entries }: { trackables: Trackable[]; entries: 
                   {t ? formatValue(t, e.value) : String(e.value)}
                   {e.note && <span className="note"> · {e.note}</span>}
                 </td>
+                <td className="td-act">
+                  {t && (
+                    <button className="icon-btn" title="Изменить" onClick={() => setEditing(e)}>
+                      ✎
+                    </button>
+                  )}
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+
+      {editing && byId[editing.trackableId] && (
+        <QuickLogModal
+          studyId={studyId}
+          trackable={byId[editing.trackableId]}
+          entry={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

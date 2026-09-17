@@ -122,6 +122,17 @@ export async function addEntry(input: {
   return entry.id;
 }
 
+export async function updateEntry(
+  id: string,
+  patch: { value?: EntryValue; loggedAt?: string; note?: string },
+): Promise<void> {
+  const next: Partial<Entry> = { updatedAt: now() };
+  if (patch.value !== undefined) next.value = patch.value;
+  if (patch.loggedAt !== undefined) next.loggedAt = patch.loggedAt;
+  if (patch.note !== undefined) next.note = patch.note.trim() || undefined;
+  await db.entries.update(id, next);
+}
+
 export async function deleteEntry(id: string): Promise<void> {
   await db.entries.delete(id);
 }

@@ -13,7 +13,7 @@ export const TRACKABLE_TYPES: TypeMeta[] = [
   { type: 'number', label: 'Число', hint: 'Числовое значение с единицей, напр. часы сна', icon: '🔢' },
   { type: 'bool', label: 'Да / Нет', hint: 'Было или не было, напр. пил алкоголь', icon: '✅' },
   { type: 'time', label: 'Время', hint: 'Время суток, напр. время засыпания', icon: '🕒' },
-  { type: 'enum', label: 'Выбор', hint: 'Один вариант из списка, напр. фаза цикла', icon: '🏷️' },
+  { type: 'enum', label: 'Выбор', hint: 'Один вариант из списка, напр. место: дом / работа', icon: '🏷️' },
   { type: 'text', label: 'Заметка', hint: 'Свободный текст', icon: '📝' },
 ];
 

@@ -110,7 +110,7 @@ export default function AddTrackableForm({
             id="opts"
             value={optionsText}
             onChange={(e) => setOptionsText(e.target.value)}
-            placeholder={'Напр.\nменструация\nфолликулярная\nовуляция\nлютеиновая'}
+            placeholder={'Напр.\nдом\nработа\nулица\nв гостях'}
           />
         </div>
       )}

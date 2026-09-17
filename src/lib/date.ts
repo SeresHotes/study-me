@@ -46,6 +46,15 @@ export function dateTimeInputToIso(value: string): string {
   return new Date(value).toISOString();
 }
 
+/** ISO -> YYYY-MM-DDTHH:MM (локальное) для <input type="datetime-local">. */
+export function isoToDateTimeInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+    d.getMinutes(),
+  )}`;
+}
+
 export interface StudyProgress {
   totalDays: number | null; // null — бессрочное
   elapsedDays: number;
