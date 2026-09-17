@@ -111,12 +111,12 @@ body {
   text-decoration: none;
   color: var(--text);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .brand-mark {
   color: var(--accent);
-  font-size: 22px;
+  font-size: 25px;
 }
 
 .app-main {
@@ -128,7 +128,7 @@ body {
   text-align: center;
   padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
   color: var(--text-dim);
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0.7;
 }
 
@@ -137,7 +137,7 @@ body {
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
   cursor: pointer;
@@ -164,7 +164,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   animation: slide-up 0.2s ease;
 }
@@ -183,7 +183,7 @@ body {
   color: var(--text);
   padding: 11px 18px;
   border-radius: 999px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
   cursor: pointer;
   text-decoration: none;
@@ -211,7 +211,7 @@ body {
 
 .btn-sm {
   padding: 8px 13px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .btn-ghost {
@@ -261,14 +261,14 @@ body {
 }
 
 .study-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0;
 }
 
 .study-desc {
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: 16px;
   margin: 6px 0 0;
 }
 
@@ -292,7 +292,7 @@ body {
   gap: 6px 12px;
   margin-top: 10px;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .badge {
@@ -300,7 +300,7 @@ body {
   align-items: center;
   padding: 3px 9px;
   border-radius: 99px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   background: var(--surface-2);
   color: var(--text-dim);
@@ -324,7 +324,7 @@ body {
 }
 
 .field label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-dim);
 }
@@ -361,14 +361,14 @@ textarea {
 
 /* ---- Page bits ---- */
 .page-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
   letter-spacing: -0.03em;
   margin: 4px 0 16px;
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-dim);
@@ -382,7 +382,7 @@ textarea {
   gap: 4px;
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 8px;
 }
 
@@ -393,7 +393,7 @@ textarea {
 }
 
 .empty-emoji {
-  font-size: 40px;
+  font-size: 46px;
   display: block;
   margin-bottom: 10px;
 }
@@ -416,7 +416,7 @@ textarea {
   background: transparent;
   color: var(--text-dim);
   font-weight: 800;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
 }
 
@@ -438,7 +438,7 @@ textarea {
   color: var(--text);
   padding: 9px 14px;
   border-radius: 99px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -461,7 +461,7 @@ textarea {
   background: var(--surface-2);
   color: var(--text);
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -488,7 +488,7 @@ textarea {
 }
 
 .trackable-type-icon {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .type-grid {
@@ -520,7 +520,7 @@ textarea {
 }
 
 .type-option-hint {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   margin-top: 4px;
 }
@@ -530,7 +530,7 @@ textarea {
 }
 
 .entry-day-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-dim);
   margin-bottom: 8px;
@@ -557,16 +557,16 @@ textarea {
 
 .entry-name {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .entry-value {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
 }
 
 .entry-time {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
 }
 
@@ -575,7 +575,7 @@ textarea {
   background: transparent;
   color: var(--text-dim);
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   padding: 6px;
   border-radius: 8px;
 }
@@ -585,7 +585,7 @@ textarea {
 }
 
 .note {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-dim);
   margin-top: 2px;
 }
@@ -688,13 +688,13 @@ textarea {
 }
 
 .quick-icon {
-  font-size: 24px;
+  font-size: 27px;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
 }
 
 .quick-name {
   font-weight: 900;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.2;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
 }
@@ -737,13 +737,13 @@ textarea {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
 }
 
 .sheet-mode {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -772,11 +772,11 @@ textarea {
 
 .cal-title {
   font-weight: 700;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .cal-head .icon-btn {
-  font-size: 22px;
+  font-size: 25px;
   color: var(--text);
   width: 36px;
 }
@@ -793,7 +793,7 @@ textarea {
 
 .cal-weekday {
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-dim);
 }
@@ -829,7 +829,7 @@ textarea {
 }
 
 .cal-day {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -849,7 +849,7 @@ textarea {
 }
 
 .cal-more {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-dim);
   line-height: 1;
 }
@@ -869,13 +869,13 @@ textarea {
 }
 
 .stat-big-num {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 800;
   color: var(--accent);
 }
 
 .stat-big-label {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
 }
 
@@ -896,12 +896,12 @@ textarea {
 }
 
 .stat-val {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
 }
 
 .stat-lbl {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-dim);
 }
 
@@ -920,7 +920,7 @@ textarea {
 
 .dist-label {
   flex: 0 0 30%;
-  font-size: 13px;
+  font-size: 15px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -942,7 +942,7 @@ textarea {
 
 .dist-pct {
   flex: none;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   width: 64px;
   text-align: right;
@@ -969,7 +969,7 @@ textarea {
   background: transparent;
   color: var(--text-dim);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 15px;
   padding: 9px 6px;
   border-radius: 999px;
   cursor: pointer;
@@ -991,7 +991,7 @@ textarea {
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -1018,7 +1018,7 @@ textarea {
 
 .chart-axis {
   fill: var(--chart-axis);
-  font-size: 10px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1035,7 +1035,7 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 9px;
   padding: 5px 9px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   box-shadow: var(--shadow);
   white-space: nowrap;
@@ -1044,7 +1044,7 @@ textarea {
 
 .chart-tip-head {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text);
 }
 
@@ -1057,12 +1057,12 @@ textarea {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .data-table th {
   text-align: left;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   font-weight: 700;
   padding: 10px 12px;
