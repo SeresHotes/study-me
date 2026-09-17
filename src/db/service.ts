@@ -1,5 +1,6 @@
 import { db } from './db';
 import type { Study, Trackable, Entry, StudyStatus, EntryValue } from '../types';
+import { suggestColor } from '../lib/colors';
 
 // Все мутации данных идут через этот модуль. Когда появится бэкенд/Google Sheets,
 // здесь же добавится запись в удалённое хранилище (или очередь синхронизации),
@@ -55,6 +56,7 @@ export interface TrackableInput {
   studyId: string;
   name: string;
   type: Trackable['type'];
+  color?: string;
   unit?: string;
   min?: number;
   max?: number;
@@ -70,6 +72,7 @@ export async function addTrackable(input: TrackableInput): Promise<string> {
     name: input.name.trim(),
     type: input.type,
     order: count,
+    color: input.color ?? suggestColor(count),
     unit: input.unit?.trim() || undefined,
     min: input.min,
     max: input.max,

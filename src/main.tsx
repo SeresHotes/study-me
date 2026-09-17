@@ -5,7 +5,10 @@ import App from './App';
 import StudiesPage from './pages/StudiesPage';
 import NewStudyPage from './pages/NewStudyPage';
 import StudyDetailPage from './pages/StudyDetailPage';
+import { initTheme } from './lib/theme';
 import './index.css';
+
+initTheme();
 
 // HashRouter (URL с #) — надёжен на GitHub Pages: перезагрузка глубокой
 // ссылки не даёт 404, т.к. сервер всегда отдаёт index.html.

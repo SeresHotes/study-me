@@ -1,28 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import type { Entry, EntryValue, Trackable } from '../types';
-import {
-  addEntry,
-  deleteEntry,
-  deleteStudy,
-  deleteTrackable,
-  setStudyStatus,
-} from '../db/service';
-import {
-  dateTimeInputToIso,
-  dayKey,
-  formatDate,
-  formatTime,
-  nowDateTimeInput,
-  studyProgress,
-} from '../lib/date';
-import { formatValue, isEmptyValue, typeMeta } from '../lib/trackables';
-import TrackableInput from '../components/TrackableInput';
+import type { Trackable } from '../types';
+import { deleteStudy, deleteTrackable, setStudyStatus, updateTrackable } from '../db/service';
+import { formatDate, studyProgress } from '../lib/date';
+import { typeMeta } from '../lib/trackables';
+import { suggestColor, trackableColor } from '../lib/colors';
+import QuickLogModal from '../components/QuickLogModal';
 import AddTrackableForm from '../components/AddTrackableForm';
+import ColorPalette from '../components/ColorPalette';
+import MonthCalendar from '../components/MonthCalendar';
+import StatsView from '../components/StatsView';
 
-type Tab = 'checkin' | 'history' | 'trackables';
+type Tab = 'checkin' | 'calendar' | 'stats' | 'trackables';
 
 export default function StudyDetailPage() {
   const { id = '' } = useParams();
@@ -66,25 +57,26 @@ export default function StudyDetailPage() {
         <button className={`tab ${tab === 'checkin' ? 'active' : ''}`} onClick={() => setTab('checkin')}>
           Отметиться
         </button>
-        <button className={`tab ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
-          Записи
+        <button className={`tab ${tab === 'calendar' ? 'active' : ''}`} onClick={() => setTab('calendar')}>
+          Календарь
         </button>
-        <button
-          className={`tab ${tab === 'trackables' ? 'active' : ''}`}
-          onClick={() => setTab('trackables')}
-        >
+        <button className={`tab ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
+          Статистика
+        </button>
+        <button className={`tab ${tab === 'trackables' ? 'active' : ''}`} onClick={() => setTab('trackables')}>
           Показатели
         </button>
       </div>
 
       {tab === 'checkin' && <CheckInTab studyId={id} trackables={trackables} onGoto={setTab} />}
-      {tab === 'history' && <HistoryTab studyId={id} trackables={trackables} />}
+      {tab === 'calendar' && <MonthCalendar studyId={id} trackables={trackables} />}
+      {tab === 'stats' && <StatsView studyId={id} trackables={trackables} />}
       {tab === 'trackables' && <TrackablesTab study={study} trackables={trackables} />}
     </div>
   );
 }
 
-// ---- Check-in ----
+// ---- Быстрый ввод ----
 
 function CheckInTab({
   studyId,
@@ -95,9 +87,8 @@ function CheckInTab({
   trackables: Trackable[];
   onGoto: (t: Tab) => void;
 }) {
-  const [when, setWhen] = useState(nowDateTimeInput());
-  const [values, setValues] = useState<Record<string, EntryValue | undefined>>({});
-  const [justSaved, setJustSaved] = useState(0);
+  const [active, setActive] = useState<Trackable | null>(null);
+  const [toast, setToast] = useState('');
 
   if (trackables.length === 0) {
     return (
@@ -111,130 +102,48 @@ function CheckInTab({
     );
   }
 
-  const filledCount = trackables.filter((t) => !isEmptyValue(values[t.id])).length;
-
-  async function handleSave() {
-    const loggedAt = dateTimeInputToIso(when);
-    const toSave = trackables.filter((t) => !isEmptyValue(values[t.id]));
-    await Promise.all(
-      toSave.map((t) =>
-        addEntry({ studyId, trackableId: t.id, value: values[t.id] as EntryValue, loggedAt }),
-      ),
-    );
-    setValues({});
-    setWhen(nowDateTimeInput());
-    setJustSaved(toSave.length);
-  }
-
   return (
-    <div className="stack">
-      <div className="field">
-        <label htmlFor="when">Когда</label>
-        <input
-          id="when"
-          type="datetime-local"
-          value={when}
-          onChange={(e) => setWhen(e.target.value)}
-        />
+    <div>
+      <p className="note" style={{ marginBottom: 12 }}>
+        Нажми на показатель, чтобы внести запись.
+      </p>
+      <div className="quick-grid">
+        {trackables.map((t) => {
+          const color = trackableColor(t);
+          return (
+            <button
+              key={t.id}
+              className="quick-btn"
+              style={{ borderColor: color }}
+              onClick={() => setActive(t)}
+            >
+              <span className="quick-dot" style={{ background: color }} />
+              <span className="quick-icon">{typeMeta(t.type).icon}</span>
+              <span className="quick-name">{t.name}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {trackables.map((t) => (
-        <TrackableInput
-          key={t.id}
-          trackable={t}
-          value={values[t.id]}
-          onChange={(v) => {
-            setJustSaved(0);
-            setValues((prev) => ({ ...prev, [t.id]: v }));
-          }}
-        />
-      ))}
-
-      <button className="btn btn-primary btn-block" onClick={handleSave} disabled={filledCount === 0}>
-        Сохранить {filledCount > 0 ? `(${filledCount})` : ''}
-      </button>
-
-      {justSaved > 0 && (
-        <p className="note" style={{ textAlign: 'center', color: 'var(--ok)' }}>
-          ✓ Сохранено записей: {justSaved}
+      {toast && (
+        <p className="note" style={{ textAlign: 'center', color: 'var(--ok)', marginTop: 14 }}>
+          ✓ Записано: {toast}
         </p>
+      )}
+
+      {active && (
+        <QuickLogModal
+          studyId={studyId}
+          trackable={active}
+          onClose={() => setActive(null)}
+          onSaved={(name) => setToast(name)}
+        />
       )}
     </div>
   );
 }
 
-// ---- History ----
-
-function HistoryTab({ studyId, trackables }: { studyId: string; trackables: Trackable[] }) {
-  const entries = useLiveQuery(
-    () => db.entries.where('studyId').equals(studyId).reverse().sortBy('loggedAt'),
-    [studyId],
-  );
-
-  const byId = useMemo(() => {
-    const m: Record<string, Trackable> = {};
-    for (const t of trackables) m[t.id] = t;
-    return m;
-  }, [trackables]);
-
-  if (entries === undefined) return null;
-
-  if (entries.length === 0) {
-    return (
-      <div className="empty">
-        <span className="empty-emoji">🗓️</span>
-        <p>Пока нет ни одной записи. Отметься на вкладке «Отметиться».</p>
-      </div>
-    );
-  }
-
-  // сортировка reverse+sortBy даёт по возрастанию наоборот — приведём к убыванию
-  const sorted = [...entries].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
-
-  const groups: { day: string; items: Entry[] }[] = [];
-  for (const e of sorted) {
-    const key = dayKey(e.loggedAt);
-    const last = groups[groups.length - 1];
-    if (last && last.day === key) last.items.push(e);
-    else groups.push({ day: key, items: [e] });
-  }
-
-  return (
-    <div>
-      {groups.map((g) => (
-        <div className="entry-day" key={g.day}>
-          <div className="entry-day-title">{formatDate(g.items[0].loggedAt)}</div>
-          {g.items.map((e) => {
-            const t = byId[e.trackableId];
-            return (
-              <div className="entry-item" key={e.id}>
-                <div className="entry-main">
-                  <span className="entry-name">
-                    {t ? `${typeMeta(t.type).icon} ${t.name}` : 'Показатель удалён'}
-                  </span>
-                  <span className="entry-value">{t ? formatValue(t, e.value) : String(e.value)}</span>
-                  {e.note && <span className="note">{e.note}</span>}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span className="entry-time">{formatTime(e.loggedAt)}</span>
-                  <button
-                    className="icon-btn"
-                    title="Удалить запись"
-                    onClick={() => deleteEntry(e.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---- Trackables & settings ----
+// ---- Показатели и настройки ----
 
 function TrackablesTab({
   study,
@@ -245,6 +154,7 @@ function TrackablesTab({
 }) {
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
+  const [editingColor, setEditingColor] = useState<string | null>(null);
 
   async function handleDeleteStudy() {
     if (!confirm(`Удалить исследование «${study.name}» вместе со всеми записями?`)) return;
@@ -263,22 +173,48 @@ function TrackablesTab({
       {trackables.length === 0 && !adding && (
         <p className="note">Ещё нет показателей. Добавь первый.</p>
       )}
-      {trackables.map((t) => (
-        <div className="list-manage-item" key={t.id}>
-          <div className="entry-main">
-            <span className="entry-name">
-              {typeMeta(t.type).icon} {t.name}
-            </span>
-            <span className="note">{describeTrackable(t)}</span>
+      {trackables.map((t) => {
+        const color = trackableColor(t);
+        return (
+          <div className="list-manage" key={t.id}>
+            <div className="list-manage-item">
+              <div className="entry-main">
+                <span className="entry-name">
+                  <button
+                    className="dot dot-btn"
+                    style={{ background: color }}
+                    title="Изменить цвет"
+                    onClick={() => setEditingColor(editingColor === t.id ? null : t.id)}
+                  />
+                  {typeMeta(t.type).icon} {t.name}
+                </span>
+                <span className="note">{describeTrackable(t)}</span>
+              </div>
+              <button className="icon-btn" title="Удалить" onClick={() => handleDeleteTrackable(t)}>
+                🗑
+              </button>
+            </div>
+            {editingColor === t.id && (
+              <div className="color-edit">
+                <ColorPalette
+                  value={color}
+                  onPick={async (c) => {
+                    await updateTrackable(t.id, { color: c });
+                    setEditingColor(null);
+                  }}
+                />
+              </div>
+            )}
           </div>
-          <button className="icon-btn" title="Удалить" onClick={() => handleDeleteTrackable(t)}>
-            🗑
-          </button>
-        </div>
-      ))}
+        );
+      })}
 
       {adding ? (
-        <AddTrackableForm studyId={study.id} onDone={() => setAdding(false)} />
+        <AddTrackableForm
+          studyId={study.id}
+          suggestedColor={suggestColor(trackables.length)}
+          onDone={() => setAdding(false)}
+        />
       ) : (
         <button className="btn btn-block" onClick={() => setAdding(true)}>
           + Добавить показатель

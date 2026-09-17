@@ -1,5 +1,4 @@
 import type { Trackable, EntryValue } from '../types';
-import { typeMeta } from '../lib/trackables';
 
 interface Props {
   trackable: Trackable;
@@ -7,25 +6,9 @@ interface Props {
   onChange: (value: EntryValue | undefined) => void;
 }
 
-export default function TrackableInput({ trackable, value, onChange }: Props) {
-  const meta = typeMeta(trackable.type);
-
-  return (
-    <div className="trackable-input">
-      <div className="trackable-input-head">
-        <span className="trackable-type-icon">{meta.icon}</span>
-        <span>{trackable.name}</span>
-      </div>
-      {renderControl(trackable, value, onChange)}
-    </div>
-  );
-}
-
-function renderControl(
-  trackable: Trackable,
-  value: EntryValue | undefined,
-  onChange: (value: EntryValue | undefined) => void,
-) {
+/** Рендерит подходящий инпут под тип показателя. Выделение окрашивается
+ *  в цвет показателя через CSS-переменную --accent на обёртке. */
+export default function TrackableControl({ trackable, value, onChange }: Props) {
   switch (trackable.type) {
     case 'scale': {
       const min = trackable.min ?? 1;
@@ -108,7 +91,7 @@ function renderControl(
     default:
       return (
         <textarea
-          placeholder="Заметка…"
+          placeholder="Текст…"
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value || undefined)}
         />

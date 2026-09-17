@@ -2,16 +2,20 @@ import { useState } from 'react';
 import type { TrackableType } from '../types';
 import { TRACKABLE_TYPES } from '../lib/trackables';
 import { addTrackable } from '../db/service';
+import ColorPalette from './ColorPalette';
 
 export default function AddTrackableForm({
   studyId,
+  suggestedColor,
   onDone,
 }: {
   studyId: string;
+  suggestedColor: string;
   onDone: () => void;
 }) {
   const [name, setName] = useState('');
   const [type, setType] = useState<TrackableType>('scale');
+  const [color, setColor] = useState(suggestedColor);
   const [unit, setUnit] = useState('');
   const [min, setMin] = useState('1');
   const [max, setMax] = useState('5');
@@ -26,6 +30,7 @@ export default function AddTrackableForm({
       studyId,
       name,
       type,
+      color,
       unit: type === 'number' ? unit : undefined,
       min: type === 'scale' ? Number(min) : undefined,
       max: type === 'scale' ? Number(max) : undefined,
@@ -64,6 +69,13 @@ export default function AddTrackableForm({
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="field">
+        <label>
+          Цвет <span className="dot" style={{ background: color, marginLeft: 4 }} />
+        </label>
+        <ColorPalette value={color} onPick={setColor} />
       </div>
 
       {type === 'number' && (

@@ -10,6 +10,8 @@ export interface Trackable {
   name: string;
   type: TrackableType;
   order: number;
+  color?: string; // цвет показателя (для календаря/статистики); необязателен — есть фолбэк по order
+
   // Конфигурация под конкретный тип (используются не все поля):
   unit?: string; // number: единица измерения, напр. "порций", "мл"
   min?: number; // scale: минимум шкалы
