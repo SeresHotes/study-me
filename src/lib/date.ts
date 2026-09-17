@@ -1,20 +1,41 @@
 import { getLang } from './i18n';
 
-const localeOf = () => (getLang() === 'ru' ? 'ru-RU' : 'en-US');
+/**
+ * Локали для форматирования дат. Правила записи (порядок дд/мм/гггг,
+ * разделители, 12/24 ч) берём из локали пользователя (navigator), а язык
+ * названий месяцев — из выбранного языка интерфейса. Регион пользователя
+ * применяем к выбранному языку: напр. en в регионе RU даёт «18 Sep 2025»,
+ * а не «Sep 18, 2025».
+ */
+function dateLocales(): string[] {
+  const lang = getLang();
+  const nav =
+    typeof navigator !== 'undefined'
+      ? navigator.languages && navigator.languages.length
+        ? [...navigator.languages]
+        : navigator.language
+          ? [navigator.language]
+          : []
+      : [];
+  const region = nav.map((l) => l.split('-')[1]).find(Boolean);
+  const preferred = region ? `${lang}-${region}` : lang;
+  return [preferred, ...nav, lang];
+}
 
 const cache = new Map<string, Intl.DateTimeFormat>();
 function fmt(kind: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-  const key = `${localeOf()}:${kind}`;
+  const locales = dateLocales();
+  const key = `${locales.join(',')}:${kind}`;
   let f = cache.get(key);
   if (!f) {
-    f = new Intl.DateTimeFormat(localeOf(), options);
+    f = new Intl.DateTimeFormat(locales, options);
     cache.set(key, f);
   }
   return f;
 }
 
 export const formatDate = (iso: string) =>
-  fmt('date', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+  fmt('date', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
 export const formatDateShort = (iso: string) =>
   fmt('short', { day: 'numeric', month: 'short' }).format(new Date(iso));
 export const formatTime = (iso: string) =>
