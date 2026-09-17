@@ -11,15 +11,21 @@ interface Props {
   studyId: string;
   trackable: Trackable;
   entry?: Entry; // если задан — режим редактирования
+  initialDate?: string; // YYYY-MM-DD — день по умолчанию при добавлении
   onClose: () => void;
   onSaved: (name: string) => void;
 }
 
-export default function QuickLogModal({ studyId, trackable, entry, onClose, onSaved }: Props) {
+export default function QuickLogModal({ studyId, trackable, entry, initialDate, onClose, onSaved }: Props) {
   const isTime = trackable.type === 'time';
+  const nowDT = nowDateTimeInput();
   const [value, setValue] = useState<EntryValue | undefined>(entry ? entry.value : undefined);
-  const [whenDT, setWhenDT] = useState(entry ? isoToDateTimeInput(entry.loggedAt) : nowDateTimeInput());
-  const [whenDate, setWhenDate] = useState(entry ? dayKey(entry.loggedAt) : todayDateInput());
+  const [whenDT, setWhenDT] = useState(
+    entry ? isoToDateTimeInput(entry.loggedAt) : initialDate ? `${initialDate}${nowDT.slice(10)}` : nowDT,
+  );
+  const [whenDate, setWhenDate] = useState(
+    entry ? dayKey(entry.loggedAt) : (initialDate ?? todayDateInput()),
+  );
   const [note, setNote] = useState(entry?.note ?? '');
   const [saving, setSaving] = useState(false);
   const isDark = useIsDark();

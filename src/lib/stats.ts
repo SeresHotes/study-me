@@ -95,8 +95,11 @@ export function computeDistribution(t: Trackable, values: EntryValue[]): DistIte
   if (t.type === 'enum') {
     const counts: Record<string, number> = {};
     for (const v of values) {
-      const k = String(v);
-      counts[k] = (counts[k] ?? 0) + 1;
+      const picks = Array.isArray(v) ? v : [v];
+      for (const p of picks) {
+        const k = String(p);
+        counts[k] = (counts[k] ?? 0) + 1;
+      }
     }
     // сохраняем порядок вариантов показателя, затем прочие
     const order = t.options ?? [];

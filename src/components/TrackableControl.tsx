@@ -71,10 +71,34 @@ export default function TrackableControl({ trackable, value, onChange }: Props) 
         />
       );
 
-    case 'enum':
+    case 'enum': {
+      const opts = trackable.options ?? [];
+      if (trackable.multi) {
+        const arr = Array.isArray(value) ? value : [];
+        return (
+          <div className="chips">
+            {opts.map((opt) => {
+              const on = arr.includes(opt);
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  className={`chip ${on ? 'selected' : ''}`}
+                  onClick={() => {
+                    const next = on ? arr.filter((x) => x !== opt) : [...arr, opt];
+                    onChange(next.length ? next : undefined);
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        );
+      }
       return (
         <div className="chips">
-          {(trackable.options ?? []).map((opt) => (
+          {opts.map((opt) => (
             <button
               key={opt}
               type="button"
@@ -86,6 +110,7 @@ export default function TrackableControl({ trackable, value, onChange }: Props) 
           ))}
         </div>
       );
+    }
 
     case 'text':
     default:

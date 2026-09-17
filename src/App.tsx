@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { getTheme, nextTheme, setTheme, themeIcon, themeLabel } from './lib/theme';
+import UpdatePrompt from './components/UpdatePrompt';
 
 export default function App() {
   const { pathname } = useLocation();
@@ -39,6 +40,8 @@ export default function App() {
       <main className="app-main">
         <Outlet />
       </main>
+      <footer className="app-footer">StudyMe v{__APP_VERSION__}</footer>
+      <UpdatePrompt />
     </div>
   );
 }

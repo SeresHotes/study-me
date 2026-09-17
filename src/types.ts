@@ -17,13 +17,14 @@ export interface Trackable {
   min?: number; // scale: минимум шкалы
   max?: number; // scale: максимум шкалы
   options?: string[]; // enum: варианты выбора
+  multi?: boolean; // enum: разрешён выбор нескольких вариантов
   createdAt: string;
   updatedAt: string;
 }
 
 // Значение записи: число (number/scale), строка (time "HH:MM", enum, text),
-// либо булево (bool).
-export type EntryValue = number | boolean | string;
+// булево (bool) либо массив строк (enum с мультивыбором).
+export type EntryValue = number | boolean | string | string[];
 
 export interface Entry {
   id: string;

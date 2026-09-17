@@ -20,6 +20,7 @@ export default function AddTrackableForm({
   const [min, setMin] = useState('1');
   const [max, setMax] = useState('5');
   const [optionsText, setOptionsText] = useState('');
+  const [multi, setMulti] = useState(false);
 
   const canSave = name.trim().length > 0 && (type !== 'enum' || parseOptions(optionsText).length > 0);
 
@@ -35,6 +36,7 @@ export default function AddTrackableForm({
       min: type === 'scale' ? Number(min) : undefined,
       max: type === 'scale' ? Number(max) : undefined,
       options: type === 'enum' ? parseOptions(optionsText) : undefined,
+      multi: type === 'enum' ? multi : undefined,
     });
     onDone();
   }
@@ -112,6 +114,10 @@ export default function AddTrackableForm({
             onChange={(e) => setOptionsText(e.target.value)}
             placeholder={'Напр.\nдом\nработа\nулица\nв гостях'}
           />
+          <label className="check-row">
+            <input type="checkbox" checked={multi} onChange={(e) => setMulti(e.target.checked)} />
+            Можно выбрать несколько
+          </label>
         </div>
       )}
 

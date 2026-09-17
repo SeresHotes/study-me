@@ -35,6 +35,7 @@ export function formatValue(trackable: Trackable, value: EntryValue): string {
       // value хранится как "HH:MM"
       return String(value);
     case 'enum':
+      return Array.isArray(value) ? value.join(', ') : String(value);
     case 'text':
     default:
       return String(value);
@@ -45,6 +46,7 @@ export function formatValue(trackable: Trackable, value: EntryValue): string {
 export function isEmptyValue(value: EntryValue | undefined | null): boolean {
   if (value === undefined || value === null) return true;
   if (typeof value === 'string') return value.trim() === '';
+  if (Array.isArray(value)) return value.length === 0;
   return false;
 }
 

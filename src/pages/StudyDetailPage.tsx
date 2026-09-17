@@ -8,17 +8,16 @@ import { formatDate, studyProgress } from '../lib/date';
 import { typeMeta } from '../lib/trackables';
 import { suggestColor, trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
-import QuickLogModal from '../components/QuickLogModal';
 import AddTrackableForm from '../components/AddTrackableForm';
 import ColorPalette from '../components/ColorPalette';
-import MonthCalendar from '../components/MonthCalendar';
+import Journal from '../components/Journal';
 import StatsView from '../components/StatsView';
 
-type Tab = 'checkin' | 'calendar' | 'stats' | 'trackables';
+type Tab = 'journal' | 'stats' | 'trackables';
 
 export default function StudyDetailPage() {
   const { id = '' } = useParams();
-  const [tab, setTab] = useState<Tab>('checkin');
+  const [tab, setTab] = useState<Tab>('journal');
 
   const study = useLiveQuery(() => db.studies.get(id), [id]);
   const trackables = useLiveQuery(
@@ -55,11 +54,8 @@ export default function StudyDetailPage() {
       </div>
 
       <div className="tabs">
-        <button className={`tab ${tab === 'checkin' ? 'active' : ''}`} onClick={() => setTab('checkin')}>
-          Отметиться
-        </button>
-        <button className={`tab ${tab === 'calendar' ? 'active' : ''}`} onClick={() => setTab('calendar')}>
-          Календарь
+        <button className={`tab ${tab === 'journal' ? 'active' : ''}`} onClick={() => setTab('journal')}>
+          Дневник
         </button>
         <button className={`tab ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
           Статистика
@@ -69,8 +65,9 @@ export default function StudyDetailPage() {
         </button>
       </div>
 
-      {tab === 'checkin' && <CheckInTab studyId={id} trackables={trackables} onGoto={setTab} />}
-      {tab === 'calendar' && <MonthCalendar studyId={id} trackables={trackables} />}
+      {tab === 'journal' && (
+        <Journal studyId={id} trackables={trackables} onGotoTrackables={() => setTab('trackables')} />
+      )}
       {tab === 'stats' && <StatsView studyId={id} trackables={trackables} />}
       {tab === 'trackables' && <TrackablesTab study={study} trackables={trackables} />}
     </div>
@@ -78,72 +75,6 @@ export default function StudyDetailPage() {
 }
 
 // ---- Быстрый ввод ----
-
-function CheckInTab({
-  studyId,
-  trackables,
-  onGoto,
-}: {
-  studyId: string;
-  trackables: Trackable[];
-  onGoto: (t: Tab) => void;
-}) {
-  const [active, setActive] = useState<Trackable | null>(null);
-  const [toast, setToast] = useState('');
-  const isDark = useIsDark();
-
-  if (trackables.length === 0) {
-    return (
-      <div className="empty">
-        <span className="empty-emoji">📊</span>
-        <p>Сначала добавь показатели, которые будешь отслеживать.</p>
-        <button className="btn btn-primary" onClick={() => onGoto('trackables')}>
-          Добавить показатели
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <p className="note" style={{ marginBottom: 12 }}>
-        Нажми на показатель, чтобы внести запись.
-      </p>
-      <div className="quick-grid">
-        {trackables.map((t) => {
-          const color = resolveColor(trackableColor(t), isDark);
-          return (
-            <button
-              key={t.id}
-              className="quick-btn"
-              style={{ borderColor: color }}
-              onClick={() => setActive(t)}
-            >
-              <span className="quick-dot" style={{ background: color }} />
-              <span className="quick-icon">{typeMeta(t.type).icon}</span>
-              <span className="quick-name">{t.name}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {toast && (
-        <p className="note" style={{ textAlign: 'center', color: 'var(--ok)', marginTop: 14 }}>
-          ✓ Записано: {toast}
-        </p>
-      )}
-
-      {active && (
-        <QuickLogModal
-          studyId={studyId}
-          trackable={active}
-          onClose={() => setActive(null)}
-          onSaved={(name) => setToast(name)}
-        />
-      )}
-    </div>
-  );
-}
 
 // ---- Показатели и настройки ----
 

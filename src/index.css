@@ -106,6 +106,57 @@ body {
   padding: 16px 16px calc(32px + env(safe-area-inset-bottom));
 }
 
+.app-footer {
+  text-align: center;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  color: var(--text-dim);
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check-row input {
+  width: auto;
+}
+
+.update-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 200;
+  width: calc(100% - 32px);
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  font-weight: 600;
+  animation: slide-up 0.2s ease;
+}
+
+.update-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
 /* ---- Buttons ---- */
 .btn {
   appearance: none;

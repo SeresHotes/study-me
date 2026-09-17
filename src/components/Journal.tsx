@@ -18,19 +18,23 @@ const MONTHS = [
 const pad = (n: number) => String(n).padStart(2, '0');
 const keyOf = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
-export default function MonthCalendar({
+export default function Journal({
   studyId,
   trackables,
+  onGotoTrackables,
 }: {
   studyId: string;
   trackables: Trackable[];
+  onGotoTrackables: () => void;
 }) {
   const isDark = useIsDark();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selected, setSelected] = useState<string>(dayKey(now.toISOString()));
+  const [adding, setAdding] = useState<Trackable | null>(null);
   const [editing, setEditing] = useState<Entry | null>(null);
+  const [toast, setToast] = useState('');
 
   const entries = useLiveQuery(
     () => db.entries.where('studyId').equals(studyId).toArray(),
@@ -43,7 +47,6 @@ export default function MonthCalendar({
     return m;
   }, [trackables]);
 
-  // dayKey -> записи этого дня
   const byDay = useMemo(() => {
     const m: Record<string, Entry[]> = {};
     for (const e of entries ?? []) {
@@ -55,8 +58,20 @@ export default function MonthCalendar({
 
   if (entries === undefined) return null;
 
+  if (trackables.length === 0) {
+    return (
+      <div className="empty">
+        <span className="empty-emoji">📊</span>
+        <p>Сначала добавь показатели, которые будешь отслеживать.</p>
+        <button className="btn btn-primary" onClick={onGotoTrackables}>
+          Добавить показатели
+        </button>
+      </div>
+    );
+  }
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const startOffset = (new Date(year, month, 1).getDay() + 6) % 7; // Пн = 0
+  const startOffset = (new Date(year, month, 1).getDay() + 6) % 7;
   const todayKey = dayKey(now.toISOString());
 
   const cells: (number | null)[] = [];
@@ -66,12 +81,10 @@ export default function MonthCalendar({
   function shift(delta: number) {
     const m = month + delta;
     const y = year + Math.floor(m / 12);
-    const nm = ((m % 12) + 12) % 12;
     setYear(y);
-    setMonth(nm);
+    setMonth(((m % 12) + 12) % 12);
   }
 
-  /** Уникальные цвета показателей, отмеченных в этот день (в порядке показателей). */
   function dayColors(key: string): string[] {
     const list = byDay[key];
     if (!list) return [];
@@ -79,9 +92,8 @@ export default function MonthCalendar({
     return trackables.filter((t) => ids.has(t.id)).map((t) => resolveColor(trackableColor(t), isDark));
   }
 
-  const selectedEntries = (byDay[selected] ?? []).sort((a, b) =>
-    b.loggedAt.localeCompare(a.loggedAt),
-  );
+  const selectedEntries = (byDay[selected] ?? []).sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
+  const isToday = selected === todayKey;
 
   return (
     <div>
@@ -113,9 +125,7 @@ export default function MonthCalendar({
           return (
             <button
               key={key}
-              className={`cal-cell ${key === selected ? 'selected' : ''} ${
-                key === todayKey ? 'today' : ''
-              }`}
+              className={`cal-cell ${key === selected ? 'selected' : ''} ${key === todayKey ? 'today' : ''}`}
               onClick={() => setSelected(key)}
             >
               <span className="cal-day">{d}</span>
@@ -131,7 +141,33 @@ export default function MonthCalendar({
       </div>
 
       <div className="section-title" style={{ marginTop: 18 }}>
-        {formatDate(`${selected}T12:00:00`)}
+        {isToday ? 'Отметиться за сегодня' : `Добавить за ${formatDate(`${selected}T12:00:00`)}`}
+      </div>
+      <div className="quick-grid">
+        {trackables.map((t) => {
+          const color = resolveColor(trackableColor(t), isDark);
+          return (
+            <button
+              key={t.id}
+              className="quick-btn"
+              style={{ borderColor: color }}
+              onClick={() => setAdding(t)}
+            >
+              <span className="quick-dot" style={{ background: color }} />
+              <span className="quick-icon">{typeMeta(t.type).icon}</span>
+              <span className="quick-name">{t.name}</span>
+            </button>
+          );
+        })}
+      </div>
+      {toast && (
+        <p className="note" style={{ textAlign: 'center', color: 'var(--ok)', marginTop: 12 }}>
+          ✓ Записано: {toast}
+        </p>
+      )}
+
+      <div className="section-title" style={{ marginTop: 20 }}>
+        Записи · {formatDate(`${selected}T12:00:00`)}
       </div>
       {selectedEntries.length === 0 ? (
         <p className="note">В этот день ничего не отмечено.</p>
@@ -164,6 +200,15 @@ export default function MonthCalendar({
         })
       )}
 
+      {adding && (
+        <QuickLogModal
+          studyId={studyId}
+          trackable={adding}
+          initialDate={selected}
+          onClose={() => setAdding(null)}
+          onSaved={(name) => setToast(name)}
+        />
+      )}
       {editing && byTrackable[editing.trackableId] && (
         <QuickLogModal
           studyId={studyId}

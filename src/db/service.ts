@@ -61,6 +61,7 @@ export interface TrackableInput {
   min?: number;
   max?: number;
   options?: string[];
+  multi?: boolean;
 }
 
 export async function addTrackable(input: TrackableInput): Promise<string> {
@@ -77,6 +78,7 @@ export async function addTrackable(input: TrackableInput): Promise<string> {
     min: input.min,
     max: input.max,
     options: input.options?.map((o) => o.trim()).filter(Boolean),
+    multi: input.multi,
     createdAt: ts,
     updatedAt: ts,
   };
