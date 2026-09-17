@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyMe — Privacy Policy</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: #2b2824;
+        background: #f8f5ef;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { color: #f3ece2; background: #201b16; }
+        a { color: #c99f6f; }
+      }
+      h1 { font-size: 28px; margin-bottom: 4px; }
+      h2 { font-size: 18px; margin-top: 28px; }
+      .muted { color: #766d64; font-size: 14px; }
+      a { color: #9a7362; }
+      code { background: rgba(128,128,128,0.15); padding: 1px 5px; border-radius: 5px; }
+    </style>
+  </head>
+  <body>
+    <h1>StudyMe — Privacy Policy</h1>
+    <p class="muted">Last updated: 18 September 2026</p>
+
+    <p>
+      StudyMe is a personal self-tracking web app (a PWA). You create time-boxed
+      “studies”, define metrics (mood, sleep time, habits, etc.) and log entries.
+      This policy explains what data StudyMe handles and how.
+    </p>
+
+    <h2>What data we handle</h2>
+    <p>
+      StudyMe processes only the tracking data <em>you</em> enter: your studies,
+      the metrics you define, and the entries you log (with their timestamps and
+      optional notes). StudyMe does not ask for your name, does not use cookies for
+      tracking, and contains no third-party advertising or analytics.
+    </p>
+
+    <h2>Where your data is stored</h2>
+    <p>
+      By default, all your data is stored <strong>locally in your browser</strong>
+      (IndexedDB) on your own device. It never leaves your device unless you
+      explicitly enable a sync or export feature described below.
+    </p>
+
+    <h2>Optional Google sync</h2>
+    <p>
+      If you choose to enable Google sync, StudyMe requests the
+      <code>https://www.googleapis.com/auth/drive.file</code> scope. This scope is
+      restricted to files that StudyMe itself creates — StudyMe stores a single
+      spreadsheet with a copy of your tracking data in <strong>your own Google
+      Drive</strong>, so you can access the same data across your devices. StudyMe
+      cannot see or touch any other files in your Google Drive.
+    </p>
+    <p>
+      Your Google data is used solely to keep your own StudyMe data in sync. It is
+      not sold, shared, or transferred to anyone, and it is not used for
+      advertising or any purpose other than the sync feature you enabled. You can
+      disconnect sync at any time; you may also delete the StudyMe spreadsheet from
+      your Google Drive.
+    </p>
+    <p>
+      StudyMe’s use of information received from Google APIs adheres to the
+      <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>,
+      including the Limited Use requirements.
+    </p>
+
+    <h2>Export &amp; deletion</h2>
+    <p>
+      You can export all your data to a JSON file at any time, and delete studies,
+      metrics, or entries directly in the app. Clearing the app’s browser storage
+      removes all local data.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy: <a href="mailto:sereshotes@gmail.com">sereshotes@gmail.com</a>.
+    </p>
+
+    <hr />
+    <p class="muted">
+      Кратко (RU): StudyMe хранит данные, которые вы вводите, локально в браузере.
+      Синхронизация с Google — по желанию: используется scope
+      <code>drive.file</code>, приложение создаёт одну таблицу в вашем Google Drive
+      с копией ваших данных и не имеет доступа к другим файлам. Данные не
+      продаются и никому не передаются. Вопросы — sereshotes@gmail.com.
+    </p>
+  </body>
+</html>
