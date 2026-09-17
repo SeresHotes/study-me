@@ -1,0 +1,16 @@
+name = "studyme-auth"
+main = "src/worker.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[vars]
+SCOPE = "https://www.googleapis.com/auth/drive.file"
+ALLOWED_ORIGINS = "https://sereshotes.github.io,http://localhost:5173"
+
+# KV для сессий (state + refresh-токены). id проставляется после создания namespace.
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "43f70e1766774291af0898e7767e9d38"
+
+# Секреты (не в файле): задаются через `wrangler secret put`:
+#   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
