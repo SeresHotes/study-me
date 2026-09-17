@@ -3,7 +3,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import type { Entry, Trackable, EntryValue } from '../types';
 import { formatValue, typeMeta } from '../lib/trackables';
-import { formatDate, formatTime, dayKey } from '../lib/date';
+import {
+  formatDate,
+  formatTime,
+  dayKey,
+  formatDayMonth,
+  formatHourMin,
+  formatDateTime,
+} from '../lib/date';
 import { trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
 import { useT, t as i18nT } from '../lib/i18n';
@@ -26,10 +33,15 @@ const startOfDay = (ts: number) => {
   return d.getTime();
 };
 const ts = (iso: string) => new Date(iso).getTime();
-const axisDate = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()}.${d.getMonth() + 1}`;
-};
+
+// Если весь диапазon точек умещается примерно в двое суток — по оси удобнее
+// подписывать время (ЧЧ:ММ), иначе даты («18 сен»). Тултип всегда полный.
+const INTRADAY_SPAN = 2 * DAY;
+function timeAxis(tsList: number[]): (t: number) => string {
+  if (tsList.length === 0) return formatDayMonth;
+  const span = Math.max(...tsList) - Math.min(...tsList);
+  return span <= INTRADAY_SPAN ? formatHourMin : formatDayMonth;
+}
 
 export default function StatsView({
   studyId,
@@ -214,7 +226,8 @@ function renderChart(t: Trackable, entries: Entry[], color: string, from: number
           yMin={t.min ?? 1}
           yMax={t.max ?? 5}
           fmtV={(n) => String(Math.round(n))}
-          fmtDate={axisDate}
+          fmtDate={timeAxis(points.map((p) => p.t))}
+          fmtTip={formatDateTime}
         />
       );
     }
@@ -231,7 +244,15 @@ function renderChart(t: Trackable, entries: Entry[], color: string, from: number
       }
       const round = (n: number) => String(Math.round(n * 10) / 10);
       return (
-        <LineChart points={points} color={color} yMin={yMin} yMax={yMax} fmtV={round} fmtDate={axisDate} />
+        <LineChart
+          points={points}
+          color={color}
+          yMin={yMin}
+          yMax={yMax}
+          fmtV={round}
+          fmtDate={timeAxis(points.map((p) => p.t))}
+          fmtTip={formatDateTime}
+        />
       );
     }
     case 'bool': {
@@ -240,9 +261,16 @@ function renderChart(t: Trackable, entries: Entry[], color: string, from: number
     }
     case 'time': {
       const points = sorted
-        .map((e) => ({ t: startOfDay(ts(e.loggedAt)), min: timeToMin(e.value) }))
+        .map((e) => ({ t: ts(e.loggedAt), min: timeToMin(e.value) }))
         .filter((p): p is { t: number; min: number } => p.min !== null);
-      return <DotPlot points={points} color={color} fmtDate={axisDate} />;
+      return (
+        <DotPlot
+          points={points}
+          color={color}
+          fmtDate={timeAxis(points.map((p) => p.t))}
+          fmtTip={formatDateTime}
+        />
+      );
     }
     case 'enum': {
       const dist = computeDistribution(t, entries.map((e) => e.value));
@@ -265,7 +293,7 @@ function dailyTrueCounts(entries: Entry[], from: number): { label: string; value
   }
   const out: { label: string; value: number; full: string }[] = [];
   for (let d = start; d <= today; d += DAY) {
-    out.push({ label: axisDate(d), value: counts[d] ?? 0, full: formatDate(new Date(d).toISOString()) });
+    out.push({ label: formatDayMonth(d), value: counts[d] ?? 0, full: formatDate(new Date(d).toISOString()) });
   }
   return out;
 }

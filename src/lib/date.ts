@@ -20,6 +20,20 @@ export const formatDateShort = (iso: string) =>
 export const formatTime = (iso: string) =>
   fmt('time', { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
 
+/** «18 сен» — короткая подпись оси по дате (принимает ms). */
+export const formatDayMonth = (t: number) =>
+  fmt('dayMonth', { day: 'numeric', month: 'short' }).format(new Date(t));
+
+/** «14:30» — подпись оси по времени суток (принимает ms). */
+export const formatHourMin = (t: number) =>
+  fmt('hourMin', { hour: '2-digit', minute: '2-digit' }).format(new Date(t));
+
+/** «18 сен, 14:30» — полная подпись для тултипа (принимает ms). */
+export const formatDateTime = (t: number) =>
+  fmt('dateTime', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(
+    new Date(t),
+  );
+
 /** Заголовок «Месяц Год» на текущем языке. */
 export const monthYearLabel = (year: number, month: number) =>
   fmt('monthYear', { month: 'long', year: 'numeric' }).format(new Date(year, month, 1));

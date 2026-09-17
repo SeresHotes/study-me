@@ -52,6 +52,7 @@ export function LineChart({
   yMax,
   fmtV,
   fmtDate,
+  fmtTip,
 }: {
   points: { t: number; v: number }[];
   color: string;
@@ -59,6 +60,7 @@ export function LineChart({
   yMax: number;
   fmtV: (n: number) => string;
   fmtDate: (t: number) => string;
+  fmtTip: (t: number) => string;
 }) {
   const [ref, w] = useElementWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
@@ -96,7 +98,7 @@ export function LineChart({
       ? {
           left: coords[active].x - 50,
           top: Math.max(0, coords[active].y - 44),
-          lines: [fmtV(coords[active].p.v), fmtDate(coords[active].p.t)],
+          lines: [fmtV(coords[active].p.v), fmtTip(coords[active].p.t)],
         }
       : null;
 
@@ -117,13 +119,13 @@ export function LineChart({
               </text>
             </g>
           ))}
-          {[tMin, (tMin + tMax) / 2, tMax].map((t, i) => (
+          {(tMax > tMin ? [tMin, (tMin + tMax) / 2, tMax] : [tMin]).map((t, i, arr) => (
             <text
               key={i}
               className="chart-axis"
               x={xOf(t)}
               y={H - 6}
-              textAnchor={i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}
+              textAnchor={arr.length === 1 ? 'middle' : i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}
             >
               {fmtDate(t)}
             </text>
@@ -247,10 +249,12 @@ export function DotPlot({
   points,
   color,
   fmtDate,
+  fmtTip,
 }: {
   points: { t: number; min: number }[];
   color: string;
   fmtDate: (t: number) => string;
+  fmtTip: (t: number) => string;
 }) {
   const [ref, w] = useElementWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
@@ -274,7 +278,7 @@ export function DotPlot({
           top: Math.max(0, coords[active].y - 44),
           lines: [
             `${String(Math.floor(coords[active].p.min / 60)).padStart(2, '0')}:${String(coords[active].p.min % 60).padStart(2, '0')}`,
-            fmtDate(coords[active].p.t),
+            fmtTip(coords[active].p.t),
           ],
         }
       : null;
@@ -291,13 +295,13 @@ export function DotPlot({
               </text>
             </g>
           ))}
-          {[tMin, (tMin + tMax) / 2, tMax].map((t, i) => (
+          {(tMax > tMin ? [tMin, (tMin + tMax) / 2, tMax] : [tMin]).map((t, i, arr) => (
             <text
               key={i}
               className="chart-axis"
               x={xOf(t)}
               y={H - 6}
-              textAnchor={i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}
+              textAnchor={arr.length === 1 ? 'middle' : i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}
             >
               {fmtDate(t)}
             </text>
