@@ -1,43 +1,49 @@
 import { useState } from 'react';
-import type { TrackableType } from '../types';
-import { TRACKABLE_TYPES } from '../lib/trackables';
-import { addTrackable } from '../db/service';
+import type { Trackable, TrackableType } from '../types';
+import { TRACKABLE_TYPES, typeMeta } from '../lib/trackables';
+import { addTrackable, updateTrackable } from '../db/service';
 import ColorPalette from './ColorPalette';
 
 export default function AddTrackableForm({
   studyId,
   suggestedColor,
+  trackable,
   onDone,
 }: {
   studyId: string;
   suggestedColor: string;
+  trackable?: Trackable; // если задан — режим редактирования
   onDone: () => void;
 }) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<TrackableType>('scale');
-  const [color, setColor] = useState(suggestedColor);
-  const [unit, setUnit] = useState('');
-  const [min, setMin] = useState('1');
-  const [max, setMax] = useState('5');
-  const [optionsText, setOptionsText] = useState('');
-  const [multi, setMulti] = useState(false);
+  const editing = !!trackable;
+  const [name, setName] = useState(trackable?.name ?? '');
+  const [type, setType] = useState<TrackableType>(trackable?.type ?? 'scale');
+  const [color, setColor] = useState(trackable?.color ?? suggestedColor);
+  const [unit, setUnit] = useState(trackable?.unit ?? '');
+  const [min, setMin] = useState(String(trackable?.min ?? 1));
+  const [max, setMax] = useState(String(trackable?.max ?? 5));
+  const [optionsText, setOptionsText] = useState((trackable?.options ?? []).join('\n'));
+  const [multi, setMulti] = useState(trackable?.multi ?? false);
 
   const canSave = name.trim().length > 0 && (type !== 'enum' || parseOptions(optionsText).length > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSave) return;
-    await addTrackable({
-      studyId,
-      name,
-      type,
+    const fields = {
+      name: name.trim(),
       color,
-      unit: type === 'number' ? unit : undefined,
+      unit: type === 'number' ? unit.trim() || undefined : undefined,
       min: type === 'scale' ? Number(min) : undefined,
       max: type === 'scale' ? Number(max) : undefined,
       options: type === 'enum' ? parseOptions(optionsText) : undefined,
       multi: type === 'enum' ? multi : undefined,
-    });
+    };
+    if (editing) {
+      await updateTrackable(trackable.id, fields);
+    } else {
+      await addTrackable({ studyId, type, ...fields });
+    }
     onDone();
   }
 
@@ -54,24 +60,36 @@ export default function AddTrackableForm({
         />
       </div>
 
-      <div className="field">
-        <label>Тип показателя</label>
-        <div className="type-grid">
-          {TRACKABLE_TYPES.map((t) => (
-            <button
-              key={t.type}
-              type="button"
-              className={`type-option ${type === t.type ? 'selected' : ''}`}
-              onClick={() => setType(t.type)}
-            >
-              <span className="type-option-label">
-                {t.icon} {t.label}
-              </span>
-              <span className="type-option-hint">{t.hint}</span>
-            </button>
-          ))}
+      {editing ? (
+        <div className="field">
+          <label>Тип показателя</label>
+          <div className="type-option selected" style={{ cursor: 'default' }}>
+            <span className="type-option-label">
+              {typeMeta(type).icon} {typeMeta(type).label}
+            </span>
+            <span className="type-option-hint">Тип нельзя изменить после создания</span>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="field">
+          <label>Тип показателя</label>
+          <div className="type-grid">
+            {TRACKABLE_TYPES.map((t) => (
+              <button
+                key={t.type}
+                type="button"
+                className={`type-option ${type === t.type ? 'selected' : ''}`}
+                onClick={() => setType(t.type)}
+              >
+                <span className="type-option-label">
+                  {t.icon} {t.label}
+                </span>
+                <span className="type-option-hint">{t.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="field">
         <label>
@@ -126,7 +144,7 @@ export default function AddTrackableForm({
           Отмена
         </button>
         <button type="submit" className="btn btn-primary" disabled={!canSave} style={{ flex: 1 }}>
-          Добавить
+          {editing ? 'Сохранить' : 'Добавить'}
         </button>
       </div>
     </form>

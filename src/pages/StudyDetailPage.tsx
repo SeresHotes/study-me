@@ -91,6 +91,7 @@ function TrackablesTab({
   const isDark = useIsDark();
   const [adding, setAdding] = useState(false);
   const [editingColor, setEditingColor] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function handleDeleteStudy() {
     if (!confirm(`Удалить исследование «${study.name}» вместе со всеми записями?`)) return;
@@ -112,6 +113,17 @@ function TrackablesTab({
       {trackables.map((t) => {
         const canonical = trackableColor(t);
         const color = resolveColor(canonical, isDark);
+        if (editingId === t.id) {
+          return (
+            <AddTrackableForm
+              key={t.id}
+              studyId={study.id}
+              suggestedColor={canonical}
+              trackable={t}
+              onDone={() => setEditingId(null)}
+            />
+          );
+        }
         return (
           <div className="list-manage" key={t.id}>
             <div className="list-manage-item">
@@ -127,9 +139,21 @@ function TrackablesTab({
                 </span>
                 <span className="note">{describeTrackable(t)}</span>
               </div>
-              <button className="icon-btn" title="Удалить" onClick={() => handleDeleteTrackable(t)}>
-                🗑
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <button
+                  className="icon-btn"
+                  title="Редактировать"
+                  onClick={() => {
+                    setEditingColor(null);
+                    setEditingId(t.id);
+                  }}
+                >
+                  ✎
+                </button>
+                <button className="icon-btn" title="Удалить" onClick={() => handleDeleteTrackable(t)}>
+                  🗑
+                </button>
+              </div>
             </div>
             {editingColor === t.id && (
               <div className="color-edit">
