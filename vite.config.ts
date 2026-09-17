@@ -23,8 +23,8 @@ export default defineConfig({
         short_name: 'StudyMe',
         description:
           'Запускай исследования над собой на срок, описывай показатели и отмечайся периодически.',
-        theme_color: '#6c5ce7',
-        background_color: '#0f1117',
+        theme_color: '#f8f5ef',
+        background_color: '#f8f5ef',
         display: 'standalone',
         orientation: 'portrait',
         lang: 'ru',
