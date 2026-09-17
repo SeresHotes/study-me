@@ -19,7 +19,9 @@ export default function StudyDetailPage() {
   const { id = '' } = useParams();
   const [tab, setTab] = useState<Tab>('journal');
 
-  const study = useLiveQuery(() => db.studies.get(id), [id]);
+  // Dexie .get() возвращает undefined и для «грузится», и для «не найдено» —
+  // приводим отсутствие к null, чтобы отличить загрузку от несуществующего id.
+  const study = useLiveQuery(async () => (await db.studies.get(id)) ?? null, [id]);
   const trackables = useLiveQuery(
     () => db.trackables.where('studyId').equals(id).sortBy('order'),
     [id],
