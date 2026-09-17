@@ -6,3 +6,4 @@ dev-dist
 .vite
 .claude
 .agents
+skills-lock.json
