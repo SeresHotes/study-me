@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createStudy } from '../db/service';
 import { todayDateInput } from '../lib/date';
+import { useT } from '../lib/i18n';
 
 export default function NewStudyPage() {
+  const { t } = useT();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -29,35 +31,35 @@ export default function NewStudyPage() {
   return (
     <div>
       <Link to="/" className="back-link">
-        ← Назад
+        {t('nav.allStudies')}
       </Link>
-      <h1 className="page-title">Новое исследование</h1>
+      <h1 className="page-title">{t('newStudy.title')}</h1>
 
       <form className="stack" onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="name">Название</label>
+          <label htmlFor="name">{t('newStudy.name')}</label>
           <input
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Напр. Сон и настроение, октябрь"
+            placeholder={t('newStudy.namePh')}
             autoFocus
           />
         </div>
 
         <div className="field">
-          <label htmlFor="desc">Зачем это исследование (необязательно)</label>
+          <label htmlFor="desc">{t('newStudy.why')}</label>
           <textarea
             id="desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Гипотеза, что хочу понять…"
+            placeholder={t('newStudy.whyPh')}
           />
         </div>
 
         <div className="row-2">
           <div className="field">
-            <label htmlFor="start">Начало</label>
+            <label htmlFor="start">{t('newStudy.start')}</label>
             <input
               id="start"
               type="date"
@@ -66,7 +68,7 @@ export default function NewStudyPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="end">Конец (необязательно)</label>
+            <label htmlFor="end">{t('newStudy.end')}</label>
             <input
               id="end"
               type="date"
@@ -76,12 +78,10 @@ export default function NewStudyPage() {
             />
           </div>
         </div>
-        <p className="note">
-          Оставь конец пустым для бессрочного наблюдения. Показатели добавишь на следующем шаге.
-        </p>
+        <p className="note">{t('newStudy.note')}</p>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={!canSave}>
-          Создать исследование
+          {t('newStudy.create')}
         </button>
       </form>
     </div>

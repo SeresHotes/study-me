@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { getTheme, nextTheme, setTheme, themeIcon, themeLabel } from './lib/theme';
+import { getTheme, nextTheme, setTheme, themeIcon } from './lib/theme';
+import { useT } from './lib/i18n';
 import UpdatePrompt from './components/UpdatePrompt';
 
 export default function App() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
+  const { t, lang, setLang } = useT();
   const [theme, setThemeState] = useState(getTheme());
 
   function cycleTheme() {
@@ -24,15 +26,22 @@ export default function App() {
         <div className="header-actions">
           <button
             className="btn btn-sm btn-ghost"
+            onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')}
+            title={lang === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+          >
+            {lang === 'ru' ? 'EN' : 'RU'}
+          </button>
+          <button
+            className="btn btn-sm btn-ghost"
             onClick={cycleTheme}
-            title={`Тема: ${themeLabel(theme)}`}
-            aria-label={`Тема: ${themeLabel(theme)}`}
+            title={t(`theme.${theme}`)}
+            aria-label={t(`theme.${theme}`)}
           >
             {themeIcon(theme)}
           </button>
           {isHome && (
             <Link to="/new" className="btn btn-primary btn-sm">
-              + Исследование
+              {t('nav.newStudyShort')}
             </Link>
           )}
         </div>

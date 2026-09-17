@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { Trackable, TrackableType } from '../types';
-import { TRACKABLE_TYPES, typeMeta } from '../lib/trackables';
+import { TRACKABLE_TYPES, typeMeta, typeLabel, typeHint } from '../lib/trackables';
 import { addTrackable, updateTrackable } from '../db/service';
+import { useT } from '../lib/i18n';
 import ColorPalette from './ColorPalette';
 
 export default function AddTrackableForm({
@@ -15,6 +16,7 @@ export default function AddTrackableForm({
   trackable?: Trackable; // если задан — режим редактирования
   onDone: () => void;
 }) {
+  const { t } = useT();
   const editing = !!trackable;
   const [name, setName] = useState(trackable?.name ?? '');
   const [type, setType] = useState<TrackableType>(trackable?.type ?? 'scale');
@@ -50,41 +52,41 @@ export default function AddTrackableForm({
   return (
     <form className="card stack" onSubmit={handleSubmit}>
       <div className="field">
-        <label htmlFor="tname">Что отслеживаем</label>
+        <label htmlFor="tname">{t('form.whatTrack')}</label>
         <input
           id="tname"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Напр. Настроение"
+          placeholder={t('form.namePh')}
           autoFocus
         />
       </div>
 
       {editing ? (
         <div className="field">
-          <label>Тип показателя</label>
+          <label>{t('form.type')}</label>
           <div className="type-option selected" style={{ cursor: 'default' }}>
             <span className="type-option-label">
-              {typeMeta(type).icon} {typeMeta(type).label}
+              {typeMeta(type).icon} {typeLabel(type)}
             </span>
-            <span className="type-option-hint">Тип нельзя изменить после создания</span>
+            <span className="type-option-hint">{t('form.typeLocked')}</span>
           </div>
         </div>
       ) : (
         <div className="field">
-          <label>Тип показателя</label>
+          <label>{t('form.type')}</label>
           <div className="type-grid">
-            {TRACKABLE_TYPES.map((t) => (
+            {TRACKABLE_TYPES.map((opt) => (
               <button
-                key={t.type}
+                key={opt.type}
                 type="button"
-                className={`type-option ${type === t.type ? 'selected' : ''}`}
-                onClick={() => setType(t.type)}
+                className={`type-option ${type === opt.type ? 'selected' : ''}`}
+                onClick={() => setType(opt.type)}
               >
                 <span className="type-option-label">
-                  {t.icon} {t.label}
+                  {opt.icon} {typeLabel(opt.type)}
                 </span>
-                <span className="type-option-hint">{t.hint}</span>
+                <span className="type-option-hint">{typeHint(opt.type)}</span>
               </button>
             ))}
           </div>
@@ -93,19 +95,19 @@ export default function AddTrackableForm({
 
       <div className="field">
         <label>
-          Цвет <span className="dot" style={{ background: color, marginLeft: 4 }} />
+          {t('form.color')} <span className="dot" style={{ background: color, marginLeft: 4 }} />
         </label>
         <ColorPalette value={color} onPick={setColor} />
       </div>
 
       {type === 'number' && (
         <div className="field">
-          <label htmlFor="unit">Единица измерения (необязательно)</label>
+          <label htmlFor="unit">{t('form.unit')}</label>
           <input
             id="unit"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            placeholder="Напр. часов, мл, порций"
+            placeholder={t('form.unitPh')}
           />
         </div>
       )}
@@ -113,11 +115,11 @@ export default function AddTrackableForm({
       {type === 'scale' && (
         <div className="row-2">
           <div className="field">
-            <label htmlFor="min">Мин.</label>
+            <label htmlFor="min">{t('form.min')}</label>
             <input id="min" type="number" value={min} onChange={(e) => setMin(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="max">Макс.</label>
+            <label htmlFor="max">{t('form.max')}</label>
             <input id="max" type="number" value={max} onChange={(e) => setMax(e.target.value)} />
           </div>
         </div>
@@ -125,26 +127,26 @@ export default function AddTrackableForm({
 
       {type === 'enum' && (
         <div className="field">
-          <label htmlFor="opts">Варианты (по одному в строке)</label>
+          <label htmlFor="opts">{t('form.options')}</label>
           <textarea
             id="opts"
             value={optionsText}
             onChange={(e) => setOptionsText(e.target.value)}
-            placeholder={'Напр.\nдом\nработа\nулица\nв гостях'}
+            placeholder={t('form.optionsPh')}
           />
           <label className="check-row">
             <input type="checkbox" checked={multi} onChange={(e) => setMulti(e.target.checked)} />
-            Можно выбрать несколько
+            {t('form.multi')}
           </label>
         </div>
       )}
 
       <div className="btn-row">
         <button type="button" className="btn btn-ghost" onClick={onDone}>
-          Отмена
+          {t('common.cancel')}
         </button>
         <button type="submit" className="btn btn-primary" disabled={!canSave} style={{ flex: 1 }}>
-          {editing ? 'Сохранить' : 'Добавить'}
+          {editing ? t('common.save') : t('common.add')}
         </button>
       </div>
     </form>

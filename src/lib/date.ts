@@ -1,22 +1,35 @@
-const dateFmt = new Intl.DateTimeFormat('ru-RU', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
+import { getLang } from './i18n';
 
-const dateShortFmt = new Intl.DateTimeFormat('ru-RU', {
-  day: 'numeric',
-  month: 'short',
-});
+const localeOf = () => (getLang() === 'ru' ? 'ru-RU' : 'en-US');
 
-const timeFmt = new Intl.DateTimeFormat('ru-RU', {
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const cache = new Map<string, Intl.DateTimeFormat>();
+function fmt(kind: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${localeOf()}:${kind}`;
+  let f = cache.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(localeOf(), options);
+    cache.set(key, f);
+  }
+  return f;
+}
 
-export const formatDate = (iso: string) => dateFmt.format(new Date(iso));
-export const formatDateShort = (iso: string) => dateShortFmt.format(new Date(iso));
-export const formatTime = (iso: string) => timeFmt.format(new Date(iso));
+export const formatDate = (iso: string) =>
+  fmt('date', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+export const formatDateShort = (iso: string) =>
+  fmt('short', { day: 'numeric', month: 'short' }).format(new Date(iso));
+export const formatTime = (iso: string) =>
+  fmt('time', { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+
+/** Заголовок «Месяц Год» на текущем языке. */
+export const monthYearLabel = (year: number, month: number) =>
+  fmt('monthYear', { month: 'long', year: 'numeric' }).format(new Date(year, month, 1));
+
+/** Короткие названия дней недели (с понедельника) на текущем языке. */
+export function weekdayShort(): string[] {
+  const f = fmt('weekday', { weekday: 'short' });
+  // 2023-01-02 — понедельник.
+  return Array.from({ length: 7 }, (_, i) => f.format(new Date(2023, 0, 2 + i)));
+}
 
 /** Ключ дня (YYYY-MM-DD) в локальной таймзоне — для группировки записей. */
 export function dayKey(iso: string): string {

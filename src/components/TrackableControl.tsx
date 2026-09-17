@@ -1,4 +1,5 @@
 import type { Trackable, EntryValue } from '../types';
+import { useT } from '../lib/i18n';
 
 interface Props {
   trackable: Trackable;
@@ -9,6 +10,7 @@ interface Props {
 /** Рендерит подходящий инпут под тип показателя. Выделение окрашивается
  *  в цвет показателя через CSS-переменную --accent на обёртке. */
 export default function TrackableControl({ trackable, value, onChange }: Props) {
+  const { t } = useT();
   switch (trackable.type) {
     case 'scale': {
       const min = trackable.min ?? 1;
@@ -36,7 +38,9 @@ export default function TrackableControl({ trackable, value, onChange }: Props) 
         <input
           type="number"
           inputMode="decimal"
-          placeholder={trackable.unit ? `значение, ${trackable.unit}` : 'значение'}
+          placeholder={
+            trackable.unit ? t('control.valueWithUnit', { unit: trackable.unit }) : t('control.value')
+          }
           value={value === undefined ? '' : String(value)}
           onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
         />
@@ -50,14 +54,14 @@ export default function TrackableControl({ trackable, value, onChange }: Props) 
             className={`chip ${value === true ? 'selected' : ''}`}
             onClick={() => onChange(value === true ? undefined : true)}
           >
-            Да
+            {t('control.yes')}
           </button>
           <button
             type="button"
             className={`chip ${value === false ? 'selected' : ''}`}
             onClick={() => onChange(value === false ? undefined : false)}
           >
-            Нет
+            {t('control.no')}
           </button>
         </div>
       );
@@ -116,7 +120,7 @@ export default function TrackableControl({ trackable, value, onChange }: Props) 
     default:
       return (
         <textarea
-          placeholder="Текст…"
+          placeholder={t('control.textPh')}
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value || undefined)}
         />

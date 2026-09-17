@@ -3,9 +3,11 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import type { Study } from '../types';
 import { formatDate, studyProgress } from '../lib/date';
+import { useT } from '../lib/i18n';
 import DataTools from '../components/DataTools';
 
 export default function StudiesPage() {
+  const { t } = useT();
   const studies = useLiveQuery(() => db.studies.toArray(), []);
   const counts = useLiveQuery(async () => {
     const all = await db.trackables.toArray();
@@ -22,12 +24,12 @@ export default function StudiesPage() {
         <div className="empty">
           <span className="empty-emoji">◐</span>
           <p>
-            Пока нет ни одного исследования.
+            {t('studies.emptyTitle')}
             <br />
-            Запусти первое — на срок, с набором показателей.
+            {t('studies.emptyHint')}
           </p>
           <Link to="/new" className="btn btn-primary">
-            + Новое исследование
+            {t('studies.new')}
           </Link>
         </div>
         <DataTools hasData={false} />
@@ -42,7 +44,7 @@ export default function StudiesPage() {
 
   return (
     <div className="stack">
-      <h1 className="page-title">Мои исследования</h1>
+      <h1 className="page-title">{t('studies.title')}</h1>
       {sorted.map((s) => (
         <StudyCard key={s.id} study={s} trackableCount={counts?.[s.id] ?? 0} />
       ))}
@@ -52,6 +54,7 @@ export default function StudiesPage() {
 }
 
 function StudyCard({ study, trackableCount }: { study: Study; trackableCount: number }) {
+  const { t } = useT();
   const p = studyProgress(study.startDate, study.endDate);
 
   return (
@@ -59,11 +62,11 @@ function StudyCard({ study, trackableCount }: { study: Study; trackableCount: nu
       <div className="study-card-top">
         <h2 className="study-title">{study.name}</h2>
         {study.status === 'archived' ? (
-          <span className="badge">В архиве</span>
+          <span className="badge">{t('studies.archived')}</span>
         ) : p.isOver ? (
-          <span className="badge badge-over">Срок вышел</span>
+          <span className="badge badge-over">{t('studies.over')}</span>
         ) : (
-          <span className="badge badge-active">Активно</span>
+          <span className="badge badge-active">{t('studies.active')}</span>
         )}
       </div>
       {study.description && <p className="study-desc">{study.description}</p>}
@@ -75,17 +78,17 @@ function StudyCard({ study, trackableCount }: { study: Study; trackableCount: nu
       )}
 
       <div className="meta-row">
-        <span>📅 с {formatDate(study.startDate)}</span>
+        <span>{t('studies.since', { date: formatDate(study.startDate) })}</span>
         {study.endDate ? (
           p.daysLeft !== null && p.daysLeft >= 0 ? (
-            <span>⏳ осталось {p.daysLeft} дн.</span>
+            <span>{t('studies.daysLeft', { n: p.daysLeft })}</span>
           ) : (
-            <span>завершено</span>
+            <span>{t('studies.finished')}</span>
           )
         ) : (
-          <span>бессрочно · {p.elapsedDays} дн.</span>
+          <span>{t('studies.openEnded', { n: p.elapsedDays })}</span>
         )}
-        <span>📊 {trackableCount} показателей</span>
+        <span>{t('studies.metricsCount', { n: trackableCount })}</span>
       </div>
     </Link>
   );

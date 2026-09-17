@@ -1,30 +1,33 @@
 import type { Trackable, TrackableType, EntryValue } from '../types';
 import { formatTime } from './date';
+import { t } from './i18n';
 
 export interface TypeMeta {
   type: TrackableType;
-  label: string;
-  hint: string;
   icon: string;
 }
 
+// Порядок типов в форме создания. Подписи/подсказки — через i18n (typeLabel/typeHint).
 export const TRACKABLE_TYPES: TypeMeta[] = [
-  { type: 'scale', label: 'Шкала', hint: 'Оценка по диапазону, напр. настроение 1–5', icon: '📊' },
-  { type: 'number', label: 'Число', hint: 'Числовое значение с единицей, напр. часы сна', icon: '🔢' },
-  { type: 'bool', label: 'Да / Нет', hint: 'Было или не было, напр. пил алкоголь', icon: '✅' },
-  { type: 'time', label: 'Время', hint: 'Время суток, напр. время засыпания', icon: '🕒' },
-  { type: 'enum', label: 'Выбор', hint: 'Один вариант из списка, напр. место: дом / работа', icon: '🏷️' },
-  { type: 'text', label: 'Заметка', hint: 'Свободный текст', icon: '📝' },
+  { type: 'scale', icon: '📊' },
+  { type: 'number', icon: '🔢' },
+  { type: 'bool', icon: '✅' },
+  { type: 'time', icon: '🕒' },
+  { type: 'enum', icon: '🏷️' },
+  { type: 'text', icon: '📝' },
 ];
 
 export const typeMeta = (type: TrackableType): TypeMeta =>
   TRACKABLE_TYPES.find((t) => t.type === type) ?? TRACKABLE_TYPES[0];
 
+export const typeLabel = (type: TrackableType): string => t(`type.${type}.label`);
+export const typeHint = (type: TrackableType): string => t(`type.${type}.hint`);
+
 /** Человекочитаемое значение записи для истории/сводки. */
 export function formatValue(trackable: Trackable, value: EntryValue): string {
   switch (trackable.type) {
     case 'bool':
-      return value ? 'Да' : 'Нет';
+      return value ? t('control.yes') : t('control.no');
     case 'number':
       return trackable.unit ? `${value} ${trackable.unit}` : String(value);
     case 'scale': {
@@ -32,7 +35,6 @@ export function formatValue(trackable: Trackable, value: EntryValue): string {
       return `${value} / ${max}`;
     }
     case 'time':
-      // value хранится как "HH:MM"
       return String(value);
     case 'enum':
       return Array.isArray(value) ? value.join(', ') : String(value);

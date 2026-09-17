@@ -15,7 +15,7 @@ export default function ColorPalette({
           type="button"
           className={`swatch ${value === c ? 'selected' : ''}`}
           style={{ background: c }}
-          aria-label={`Цвет ${c}`}
+          aria-label={c}
           onClick={() => onPick(c)}
         />
       ))}

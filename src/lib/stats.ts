@@ -1,4 +1,5 @@
 import type { Trackable, EntryValue } from '../types';
+import { t } from './i18n';
 
 export interface Stat {
   label: string;
@@ -27,72 +28,72 @@ function minToTime(mins: number): string {
 }
 
 /** Числовые сводки по показателю (кроме распределения enum/bool — см. distribution). */
-export function computeStats(t: Trackable, values: EntryValue[]): Stat[] {
+export function computeStats(trackable: Trackable, values: EntryValue[]): Stat[] {
   const n = values.length;
-  if (n === 0) return [{ label: 'Записей', value: '0' }];
+  if (n === 0) return [{ label: t('stat.count'), value: '0' }];
 
-  switch (t.type) {
+  switch (trackable.type) {
     case 'number':
     case 'scale': {
       const nums = values.map(Number).filter((v) => !Number.isNaN(v));
-      if (nums.length === 0) return [{ label: 'Записей', value: String(n) }];
+      if (nums.length === 0) return [{ label: t('stat.count'), value: String(n) }];
       const sum = nums.reduce((a, b) => a + b, 0);
-      const unit = t.type === 'number' && t.unit ? ` ${t.unit}` : '';
+      const unit = trackable.type === 'number' && trackable.unit ? ` ${trackable.unit}` : '';
       const rows: Stat[] = [
-        { label: 'Записей', value: String(n) },
-        { label: 'Среднее', value: round(sum / nums.length) + unit },
-        { label: 'Мин', value: Math.min(...nums) + unit },
-        { label: 'Макс', value: Math.max(...nums) + unit },
+        { label: t('stat.count'), value: String(n) },
+        { label: t('stat.avg'), value: round(sum / nums.length) + unit },
+        { label: t('stat.min'), value: Math.min(...nums) + unit },
+        { label: t('stat.max'), value: Math.max(...nums) + unit },
       ];
-      if (t.type === 'number') rows.push({ label: 'Сумма', value: round(sum) + unit });
+      if (trackable.type === 'number') rows.push({ label: t('stat.sum'), value: round(sum) + unit });
       return rows;
     }
 
     case 'bool': {
       const yes = values.filter((v) => v === true).length;
       return [
-        { label: 'Записей', value: String(n) },
-        { label: 'Да', value: `${yes} · ${Math.round((yes / n) * 100)}%` },
-        { label: 'Нет', value: String(n - yes) },
+        { label: t('stat.count'), value: String(n) },
+        { label: t('stat.yes'), value: `${yes} · ${Math.round((yes / n) * 100)}%` },
+        { label: t('stat.no'), value: String(n - yes) },
       ];
     }
 
     case 'time': {
       const mins = values.map(timeToMin).filter((v): v is number => v !== null);
-      if (mins.length === 0) return [{ label: 'Записей', value: String(n) }];
+      if (mins.length === 0) return [{ label: t('stat.count'), value: String(n) }];
       const avg = mins.reduce((a, b) => a + b, 0) / mins.length;
       return [
-        { label: 'Записей', value: String(n) },
-        { label: 'В среднем', value: minToTime(avg) },
-        { label: 'Раньше всего', value: minToTime(Math.min(...mins)) },
-        { label: 'Позже всего', value: minToTime(Math.max(...mins)) },
+        { label: t('stat.count'), value: String(n) },
+        { label: t('stat.avgTime'), value: minToTime(avg) },
+        { label: t('stat.earliest'), value: minToTime(Math.min(...mins)) },
+        { label: t('stat.latest'), value: minToTime(Math.max(...mins)) },
       ];
     }
 
     case 'enum':
-      return [{ label: 'Записей', value: String(n) }];
+      return [{ label: t('stat.count'), value: String(n) }];
 
     case 'text':
     default:
-      return [{ label: 'Заметок', value: String(n) }];
+      return [{ label: t('stat.notes'), value: String(n) }];
   }
 }
 
 /** Распределение по вариантам — для enum и bool (для цветных полосок). */
-export function computeDistribution(t: Trackable, values: EntryValue[]): DistItem[] {
+export function computeDistribution(trackable: Trackable, values: EntryValue[]): DistItem[] {
   const n = values.length;
   if (n === 0) return [];
 
-  if (t.type === 'bool') {
+  if (trackable.type === 'bool') {
     const yes = values.filter((v) => v === true).length;
     const no = n - yes;
     return [
-      { label: 'Да', count: yes, percent: Math.round((yes / n) * 100) },
-      { label: 'Нет', count: no, percent: Math.round((no / n) * 100) },
+      { label: t('stat.yes'), count: yes, percent: Math.round((yes / n) * 100) },
+      { label: t('stat.no'), count: no, percent: Math.round((no / n) * 100) },
     ];
   }
 
-  if (t.type === 'enum') {
+  if (trackable.type === 'enum') {
     const counts: Record<string, number> = {};
     for (const v of values) {
       const picks = Array.isArray(v) ? v : [v];
@@ -101,9 +102,11 @@ export function computeDistribution(t: Trackable, values: EntryValue[]): DistIte
         counts[k] = (counts[k] ?? 0) + 1;
       }
     }
-    // сохраняем порядок вариантов показателя, затем прочие
-    const order = t.options ?? [];
-    const keys = [...order.filter((k) => k in counts), ...Object.keys(counts).filter((k) => !order.includes(k))];
+    const order = trackable.options ?? [];
+    const keys = [
+      ...order.filter((k) => k in counts),
+      ...Object.keys(counts).filter((k) => !order.includes(k)),
+    ];
     return keys.map((k) => ({ label: k, count: counts[k], percent: Math.round((counts[k] / n) * 100) }));
   }
 

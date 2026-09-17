@@ -1,5 +1,6 @@
 import { db } from '../db/db';
 import type { Study, Trackable, Entry } from '../types';
+import { t } from './i18n';
 
 // Формат резервной копии. version — версия формата бэкапа (не схемы БД),
 // пригодится, если структура экспорта поменяется.
@@ -57,7 +58,7 @@ export async function importData(raw: unknown): Promise<ImportResult> {
     !Array.isArray(b.trackables) ||
     !Array.isArray(b.entries)
   ) {
-    throw new Error('Файл не похож на резервную копию StudyMe');
+    throw new Error(t('data.notStudyMe'));
   }
 
   await db.transaction('rw', db.studies, db.trackables, db.entries, async () => {

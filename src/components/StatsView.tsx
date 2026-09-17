@@ -6,16 +6,17 @@ import { formatValue, typeMeta } from '../lib/trackables';
 import { formatDate, formatTime, dayKey } from '../lib/date';
 import { trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
+import { useT, t as i18nT } from '../lib/i18n';
 import { computeStats, computeDistribution } from '../lib/stats';
 import { LineChart, BarChart, DotPlot, DistBars } from './Charts';
 import QuickLogModal from './QuickLogModal';
 
 type Preset = '7' | '30' | '90' | 'all';
-const PRESETS: { key: Preset; label: string }[] = [
-  { key: '7', label: '7 дней' },
-  { key: '30', label: '30 дней' },
-  { key: '90', label: '90 дней' },
-  { key: 'all', label: 'Всё' },
+const PRESETS: { key: Preset; k: string }[] = [
+  { key: '7', k: 'stats.p7' },
+  { key: '30', k: 'stats.p30' },
+  { key: '90', k: 'stats.p90' },
+  { key: 'all', k: 'stats.pAll' },
 ];
 
 const DAY = 86400000;
@@ -37,9 +38,10 @@ export default function StatsView({
   studyId: string;
   trackables: Trackable[];
 }) {
+  const { t: tr } = useT();
   const isDark = useIsDark();
   const [preset, setPreset] = useState<Preset>('30');
-  const [sel, setSel] = useState<string | null>(null); // null = все показатели
+  const [sel, setSel] = useState<string | null>(null);
   const [table, setTable] = useState(false);
 
   const entries = useLiveQuery(
@@ -59,7 +61,7 @@ export default function StatsView({
     return (
       <div className="empty">
         <span className="empty-emoji">📈</span>
-        <p>Добавь показатели, чтобы видеть статистику.</p>
+        <p>{tr('stats.emptyMetrics')}</p>
       </div>
     );
   }
@@ -81,7 +83,6 @@ export default function StatsView({
 
   return (
     <div className="stack">
-      {/* Фильтры одной строкой над графиками */}
       <div className="filters">
         <div className="seg">
           {PRESETS.map((p) => (
@@ -90,16 +91,16 @@ export default function StatsView({
               className={`seg-btn ${preset === p.key ? 'active' : ''}`}
               onClick={() => setPreset(p.key)}
             >
-              {p.label}
+              {tr(p.k)}
             </button>
           ))}
         </div>
         <div className="seg seg-2">
           <button className={`seg-btn ${!table ? 'active' : ''}`} onClick={() => setTable(false)}>
-            📈 Графики
+            {tr('stats.charts')}
           </button>
           <button className={`seg-btn ${table ? 'active' : ''}`} onClick={() => setTable(true)}>
-            ▤ Таблица
+            {tr('stats.table')}
           </button>
         </div>
         <div className="chips filter-chips">
@@ -107,7 +108,7 @@ export default function StatsView({
             className={`chip chip-filter ${sel === null ? 'active' : ''}`}
             onClick={() => setSel(null)}
           >
-            Все
+            {tr('stats.all')}
           </button>
           {trackables.map((t) => {
             const c = resolveColor(trackableColor(t), isDark);
@@ -130,15 +131,15 @@ export default function StatsView({
       <div className="stat-overview card">
         <div className="stat-big">
           <span className="stat-big-num">{totalEntries}</span>
-          <span className="stat-big-label">записей за период</span>
+          <span className="stat-big-label">{tr('stats.entriesInPeriod')}</span>
         </div>
         <div className="stat-big">
           <span className="stat-big-num">{activeDays}</span>
-          <span className="stat-big-label">дней с отметками</span>
+          <span className="stat-big-label">{tr('stats.activeDays')}</span>
         </div>
         <div className="stat-big">
           <span className="stat-big-num">{shown.length}</span>
-          <span className="stat-big-label">показателей</span>
+          <span className="stat-big-label">{tr('stats.metrics')}</span>
         </div>
       </div>
 
@@ -168,6 +169,7 @@ function TrackableChart({
   color: string;
   from: number;
 }) {
+  const { t: tr } = useT();
   const values = entries.map((e) => e.value);
   const stats = computeStats(t, values);
 
@@ -181,7 +183,7 @@ function TrackableChart({
       </div>
 
       {values.length === 0 ? (
-        <p className="note">Нет записей за выбранный период.</p>
+        <p className="note">{tr('stats.noneInPeriod')}</p>
       ) : (
         <>
           <div className="stat-grid" style={{ marginBottom: 12 }}>
@@ -234,7 +236,7 @@ function renderChart(t: Trackable, entries: Entry[], color: string, from: number
     }
     case 'bool': {
       const bars = dailyTrueCounts(entries, from);
-      return <BarChart bars={bars} color={color} fmtV={(n) => `${n} раз`} />;
+      return <BarChart bars={bars} color={color} fmtV={(n) => i18nT('stats.times', { n })} />;
     }
     case 'time': {
       const points = sorted
@@ -248,7 +250,7 @@ function renderChart(t: Trackable, entries: Entry[], color: string, from: number
     }
     case 'text':
     default:
-      return <p className="note">{entries.length} заметок за период.</p>;
+      return <p className="note">{i18nT('stats.notesInPeriod', { n: entries.length })}</p>;
   }
 }
 
@@ -284,6 +286,7 @@ function TableView({
   trackables: Trackable[];
   entries: Entry[];
 }) {
+  const { t: tr } = useT();
   const [editing, setEditing] = useState<Entry | null>(null);
   const byId = useMemo(() => {
     const m: Record<string, Trackable> = {};
@@ -293,17 +296,17 @@ function TableView({
 
   const sorted = [...entries].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
 
-  if (sorted.length === 0) return <p className="note">Нет записей за выбранный период.</p>;
+  if (sorted.length === 0) return <p className="note">{tr('stats.noneInPeriod')}</p>;
 
   return (
     <div className="card table-wrap">
       <table className="data-table">
         <thead>
           <tr>
-            <th>Когда</th>
-            <th>Показатель</th>
-            <th>Значение</th>
-            <th aria-label="Действия" />
+            <th>{tr('stats.colWhen')}</th>
+            <th>{tr('stats.colMetric')}</th>
+            <th>{tr('stats.colValue')}</th>
+            <th aria-label="Actions" />
           </tr>
         </thead>
         <tbody>
@@ -312,7 +315,7 @@ function TableView({
             return (
               <tr key={e.id}>
                 <td className="td-when">
-                  {formatDate(e.loggedAt).replace(/ \d{4}$/, '')}, {formatTime(e.loggedAt)}
+                  {formatDate(e.loggedAt).replace(/,?\s*\d{4}\s*(г\.)?$/, '')}, {formatTime(e.loggedAt)}
                 </td>
                 <td>{t ? t.name : '—'}</td>
                 <td className="td-val">
@@ -321,7 +324,7 @@ function TableView({
                 </td>
                 <td className="td-act">
                   {t && (
-                    <button className="icon-btn" title="Изменить" onClick={() => setEditing(e)}>
+                    <button className="icon-btn" title={tr('common.edit')} onClick={() => setEditing(e)}>
                       ✎
                     </button>
                   )}

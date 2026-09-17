@@ -5,9 +5,10 @@ import { db } from '../db/db';
 import type { Trackable } from '../types';
 import { deleteStudy, deleteTrackable, setStudyStatus, updateTrackable } from '../db/service';
 import { formatDate, studyProgress } from '../lib/date';
-import { typeMeta } from '../lib/trackables';
+import { typeMeta, typeLabel } from '../lib/trackables';
 import { suggestColor, trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
+import { useT } from '../lib/i18n';
 import AddTrackableForm from '../components/AddTrackableForm';
 import ColorPalette from '../components/ColorPalette';
 import Journal from '../components/Journal';
@@ -16,6 +17,7 @@ import StatsView from '../components/StatsView';
 type Tab = 'journal' | 'stats' | 'trackables';
 
 export default function StudyDetailPage() {
+  const { t } = useT();
   const { id = '' } = useParams();
   const [tab, setTab] = useState<Tab>('journal');
 
@@ -31,9 +33,9 @@ export default function StudyDetailPage() {
   if (study === null) {
     return (
       <div className="empty">
-        <p>Исследование не найдено.</p>
+        <p>{t('study.notFound')}</p>
         <Link to="/" className="btn">
-          К списку
+          {t('study.toList')}
         </Link>
       </div>
     );
@@ -44,26 +46,26 @@ export default function StudyDetailPage() {
   return (
     <div>
       <Link to="/" className="back-link">
-        ← Все исследования
+        {t('nav.allStudies')}
       </Link>
       <h1 className="page-title">{study.name}</h1>
       {study.description && <p className="study-desc">{study.description}</p>}
       <div className="meta-row">
-        <span>📅 с {formatDate(study.startDate)}</span>
-        {study.endDate && <span>по {formatDate(study.endDate)}</span>}
-        {p.daysLeft !== null && p.daysLeft >= 0 && <span>⏳ осталось {p.daysLeft} дн.</span>}
-        {study.status === 'archived' && <span className="badge">В архиве</span>}
+        <span>{t('study.since', { date: formatDate(study.startDate) })}</span>
+        {study.endDate && <span>{t('study.to', { date: formatDate(study.endDate) })}</span>}
+        {p.daysLeft !== null && p.daysLeft >= 0 && <span>{t('study.daysLeft', { n: p.daysLeft })}</span>}
+        {study.status === 'archived' && <span className="badge">{t('studies.archived')}</span>}
       </div>
 
       <div className="tabs">
         <button className={`tab ${tab === 'journal' ? 'active' : ''}`} onClick={() => setTab('journal')}>
-          Дневник
+          {t('study.tabJournal')}
         </button>
         <button className={`tab ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
-          Статистика
+          {t('study.tabStats')}
         </button>
         <button className={`tab ${tab === 'trackables' ? 'active' : ''}`} onClick={() => setTab('trackables')}>
-          Показатели
+          {t('study.tabMetrics')}
         </button>
       </div>
 
@@ -76,8 +78,6 @@ export default function StudyDetailPage() {
   );
 }
 
-// ---- Быстрый ввод ----
-
 // ---- Показатели и настройки ----
 
 function TrackablesTab({
@@ -87,6 +87,7 @@ function TrackablesTab({
   study: { id: string; name: string; status: string };
   trackables: Trackable[];
 }) {
+  const { t: tr } = useT();
   const navigate = useNavigate();
   const isDark = useIsDark();
   const [adding, setAdding] = useState(false);
@@ -94,22 +95,20 @@ function TrackablesTab({
   const [editingId, setEditingId] = useState<string | null>(null);
 
   async function handleDeleteStudy() {
-    if (!confirm(`Удалить исследование «${study.name}» вместе со всеми записями?`)) return;
+    if (!confirm(tr('metrics.confirmDeleteStudy', { name: study.name }))) return;
     await deleteStudy(study.id);
     navigate('/');
   }
 
   async function handleDeleteTrackable(t: Trackable) {
-    if (!confirm(`Удалить показатель «${t.name}» и все его записи?`)) return;
+    if (!confirm(tr('metrics.confirmDeleteMetric', { name: t.name }))) return;
     await deleteTrackable(t.id);
   }
 
   return (
     <div className="stack">
-      <div className="section-title">Показатели</div>
-      {trackables.length === 0 && !adding && (
-        <p className="note">Ещё нет показателей. Добавь первый.</p>
-      )}
+      <div className="section-title">{tr('metrics.title')}</div>
+      {trackables.length === 0 && !adding && <p className="note">{tr('metrics.empty')}</p>}
       {trackables.map((t) => {
         const canonical = trackableColor(t);
         const color = resolveColor(canonical, isDark);
@@ -132,7 +131,7 @@ function TrackablesTab({
                   <button
                     className="dot dot-btn"
                     style={{ background: color }}
-                    title="Изменить цвет"
+                    title={tr('metrics.changeColor')}
                     onClick={() => setEditingColor(editingColor === t.id ? null : t.id)}
                   />
                   {typeMeta(t.type).icon} {t.name}
@@ -142,7 +141,7 @@ function TrackablesTab({
               <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <button
                   className="icon-btn"
-                  title="Редактировать"
+                  title={tr('common.edit')}
                   onClick={() => {
                     setEditingColor(null);
                     setEditingId(t.id);
@@ -150,7 +149,7 @@ function TrackablesTab({
                 >
                   ✎
                 </button>
-                <button className="icon-btn" title="Удалить" onClick={() => handleDeleteTrackable(t)}>
+                <button className="icon-btn" title={tr('common.delete')} onClick={() => handleDeleteTrackable(t)}>
                   🗑
                 </button>
               </div>
@@ -178,39 +177,39 @@ function TrackablesTab({
         />
       ) : (
         <button className="btn btn-block" onClick={() => setAdding(true)}>
-          + Добавить показатель
+          {tr('metrics.add')}
         </button>
       )}
 
       <div className="section-title" style={{ marginTop: 16 }}>
-        Исследование
+        {tr('metrics.studySection')}
       </div>
       {study.status === 'active' ? (
         <button className="btn btn-block" onClick={() => setStudyStatus(study.id, 'archived')}>
-          Завершить и в архив
+          {tr('metrics.archive')}
         </button>
       ) : (
         <button className="btn btn-block" onClick={() => setStudyStatus(study.id, 'active')}>
-          Вернуть в активные
+          {tr('metrics.unarchive')}
         </button>
       )}
       <button className="btn btn-block btn-danger" onClick={handleDeleteStudy}>
-        Удалить исследование
+        {tr('metrics.deleteStudy')}
       </button>
     </div>
   );
 }
 
 function describeTrackable(t: Trackable): string {
-  const meta = typeMeta(t.type);
+  const label = typeLabel(t.type);
   switch (t.type) {
     case 'scale':
-      return `${meta.label} · ${t.min ?? 1}–${t.max ?? 5}`;
+      return `${label} · ${t.min ?? 1}–${t.max ?? 5}`;
     case 'number':
-      return t.unit ? `${meta.label} · ${t.unit}` : meta.label;
+      return t.unit ? `${label} · ${t.unit}` : label;
     case 'enum':
-      return `${meta.label} · ${(t.options ?? []).join(', ')}`;
+      return `${label} · ${(t.options ?? []).join(', ')}`;
     default:
-      return meta.label;
+      return label;
   }
 }

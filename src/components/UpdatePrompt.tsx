@@ -1,8 +1,10 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { useT } from '../lib/i18n';
 
 // Показывает плашку «доступна новая версия» и обновляет service worker
 // по нажатию (registerType: 'prompt' в vite.config).
 export default function UpdatePrompt() {
+  const { t } = useT();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
@@ -12,13 +14,13 @@ export default function UpdatePrompt() {
 
   return (
     <div className="update-bar">
-      <span>🔄 Доступна новая версия</span>
+      <span>{t('update.available')}</span>
       <div className="update-actions">
         <button className="btn btn-sm btn-ghost" onClick={() => setNeedRefresh(false)}>
-          Позже
+          {t('update.later')}
         </button>
         <button className="btn btn-sm btn-primary" onClick={() => updateServiceWorker(true)}>
-          Обновить
+          {t('update.update')}
         </button>
       </div>
     </div>

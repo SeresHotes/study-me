@@ -5,6 +5,7 @@ import { dateTimeInputToIso, isoToDateTimeInput, nowDateTimeInput, todayDateInpu
 import { isEmptyValue, typeMeta } from '../lib/trackables';
 import { trackableColor, resolveColor } from '../lib/colors';
 import { useIsDark } from '../lib/theme';
+import { useT } from '../lib/i18n';
 import TrackableControl from './TrackableControl';
 
 interface Props {
@@ -29,6 +30,7 @@ export default function QuickLogModal({ studyId, trackable, entry, initialDate, 
   const [note, setNote] = useState(entry?.note ?? '');
   const [saving, setSaving] = useState(false);
   const isDark = useIsDark();
+  const { t: tr } = useT();
 
   const color = resolveColor(trackableColor(trackable), isDark);
   const canSave = !isEmptyValue(value) && !saving;
@@ -68,17 +70,17 @@ export default function QuickLogModal({ studyId, trackable, entry, initialDate, 
         <div className="sheet-title">
           <span className="dot" style={{ background: color }} />
           {typeMeta(trackable.type).icon} {trackable.name}
-          {entry && <span className="sheet-mode">изменить</span>}
+          {entry && <span className="sheet-mode">{tr('modal.edit')}</span>}
         </div>
 
         <div className="field">
-          <label>Значение</label>
+          <label>{tr('modal.value')}</label>
           <TrackableControl trackable={trackable} value={value} onChange={setValue} />
         </div>
 
         {isTime ? (
           <div className="field">
-            <label htmlFor="q-date">Дата</label>
+            <label htmlFor="q-date">{tr('modal.date')}</label>
             <input
               id="q-date"
               type="date"
@@ -88,7 +90,7 @@ export default function QuickLogModal({ studyId, trackable, entry, initialDate, 
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="q-when">Когда</label>
+            <label htmlFor="q-when">{tr('modal.when')}</label>
             <input
               id="q-when"
               type="datetime-local"
@@ -100,19 +102,19 @@ export default function QuickLogModal({ studyId, trackable, entry, initialDate, 
 
         {trackable.type !== 'text' && (
           <div className="field">
-            <label htmlFor="q-note">Заметка (необязательно)</label>
+            <label htmlFor="q-note">{tr('modal.note')}</label>
             <input
               id="q-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Комментарий…"
+              placeholder={tr('modal.notePh')}
             />
           </div>
         )}
 
         <div className="btn-row">
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Отмена
+            {tr('common.cancel')}
           </button>
           <button
             type="button"
@@ -121,7 +123,7 @@ export default function QuickLogModal({ studyId, trackable, entry, initialDate, 
             onClick={handleSave}
             disabled={!canSave}
           >
-            Сохранить
+            {tr('common.save')}
           </button>
         </div>
       </div>
