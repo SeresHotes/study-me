@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import type { Study } from '../types';
 import { formatDate, studyProgress } from '../lib/date';
+import DataTools from '../components/DataTools';
 
 export default function StudiesPage() {
   const studies = useLiveQuery(() => db.studies.toArray(), []);
@@ -17,17 +18,20 @@ export default function StudiesPage() {
 
   if (studies.length === 0) {
     return (
-      <div className="empty">
-        <span className="empty-emoji">◐</span>
-        <p>
-          Пока нет ни одного исследования.
-          <br />
-          Запусти первое — на срок, с набором показателей.
-        </p>
-        <Link to="/new" className="btn btn-primary">
-          + Новое исследование
-        </Link>
-      </div>
+      <>
+        <div className="empty">
+          <span className="empty-emoji">◐</span>
+          <p>
+            Пока нет ни одного исследования.
+            <br />
+            Запусти первое — на срок, с набором показателей.
+          </p>
+          <Link to="/new" className="btn btn-primary">
+            + Новое исследование
+          </Link>
+        </div>
+        <DataTools hasData={false} />
+      </>
     );
   }
 
@@ -42,6 +46,7 @@ export default function StudiesPage() {
       {sorted.map((s) => (
         <StudyCard key={s.id} study={s} trackableCount={counts?.[s.id] ?? 0} />
       ))}
+      <DataTools hasData={studies.length > 0} />
     </div>
   );
 }
