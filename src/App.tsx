@@ -49,7 +49,7 @@ export default function App() {
       <main className="app-main">
         <Outlet />
       </main>
-      <footer className="app-footer">StudyMe v{__APP_VERSION__}</footer>
+      <footer className="app-footer">StudyMe · {__APP_VERSION__}</footer>
       <UpdatePrompt />
     </div>
   );

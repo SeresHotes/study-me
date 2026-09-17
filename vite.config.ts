@@ -1,16 +1,31 @@
+import { execFileSync } from 'node:child_process';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import pkg from './package.json';
 
 // Base-путь для GitHub Pages project-site: https://<user>.github.io/study-me/
 // При деплое на корень (кастомный домен или user-site) поменяй на '/'.
 const base = '/study-me/';
 
+// Версия генерируется из git во время сборки — вручную её править не нужно,
+// поэтому и конфликтов из-за поля "version" больше не бывает.
+// Формат: «2026-09-18 14:30 · a1b2c3d» (дата и время коммита + короткий хеш).
+function resolveVersion(): string {
+  try {
+    const git = (args: string[]) => execFileSync('git', args).toString().trim();
+    const hash = git(['rev-parse', '--short', 'HEAD']);
+    const date = git(['show', '-s', '--format=%cd', '--date=format:%Y-%m-%d %H:%M', 'HEAD']);
+    return `${date} · ${hash}`;
+  } catch {
+    // git недоступен (например, сборка из архива без .git) — не роняем билд.
+    return 'dev';
+  }
+}
+
 export default defineConfig({
   base,
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(resolveVersion()),
   },
   plugins: [
     react(),
