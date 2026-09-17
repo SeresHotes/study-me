@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from 'react';
+
 export type Theme = 'system' | 'light' | 'dark';
 
 const KEY = 'studyme-theme';
@@ -33,4 +35,29 @@ export function themeIcon(theme: Theme): string {
 
 export function themeLabel(theme: Theme): string {
   return theme === 'system' ? 'Системная' : theme === 'light' ? 'Светлая' : 'Тёмная';
+}
+
+// ---- Реактивное определение фактической тёмной темы ----
+
+function computeIsDark(): boolean {
+  const attr = document.documentElement.getAttribute('data-theme');
+  if (attr === 'dark') return true;
+  if (attr === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function subscribeIsDark(cb: () => void): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', cb);
+  const mo = new MutationObserver(cb);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => {
+    mq.removeEventListener('change', cb);
+    mo.disconnect();
+  };
+}
+
+/** true, если сейчас применена тёмная тема (учитывает system + переключатель). */
+export function useIsDark(): boolean {
+  return useSyncExternalStore(subscribeIsDark, computeIsDark, () => true);
 }

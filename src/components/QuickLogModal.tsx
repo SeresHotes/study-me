@@ -3,7 +3,8 @@ import type { Trackable, EntryValue } from '../types';
 import { addEntry } from '../db/service';
 import { dateTimeInputToIso, nowDateTimeInput } from '../lib/date';
 import { isEmptyValue, typeMeta } from '../lib/trackables';
-import { trackableColor } from '../lib/colors';
+import { trackableColor, resolveColor } from '../lib/colors';
+import { useIsDark } from '../lib/theme';
 import TrackableControl from './TrackableControl';
 
 interface Props {
@@ -18,8 +19,9 @@ export default function QuickLogModal({ studyId, trackable, onClose, onSaved }: 
   const [when, setWhen] = useState(nowDateTimeInput());
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const isDark = useIsDark();
 
-  const color = trackableColor(trackable);
+  const color = resolveColor(trackableColor(trackable), isDark);
   const canSave = !isEmptyValue(value) && !saving;
 
   async function handleSave() {

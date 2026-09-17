@@ -4,7 +4,8 @@ import { db } from '../db/db';
 import type { Entry, Trackable } from '../types';
 import { dayKey, formatDate, formatTime } from '../lib/date';
 import { formatValue, typeMeta } from '../lib/trackables';
-import { trackableColor } from '../lib/colors';
+import { trackableColor, resolveColor } from '../lib/colors';
+import { useIsDark } from '../lib/theme';
 import { deleteEntry } from '../db/service';
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -23,6 +24,7 @@ export default function MonthCalendar({
   studyId: string;
   trackables: Trackable[];
 }) {
+  const isDark = useIsDark();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -72,7 +74,7 @@ export default function MonthCalendar({
     const list = byDay[key];
     if (!list) return [];
     const ids = new Set(list.map((e) => e.trackableId));
-    return trackables.filter((t) => ids.has(t.id)).map((t) => trackableColor(t));
+    return trackables.filter((t) => ids.has(t.id)).map((t) => resolveColor(trackableColor(t), isDark));
   }
 
   const selectedEntries = (byDay[selected] ?? []).sort((a, b) =>
@@ -138,7 +140,7 @@ export default function MonthCalendar({
             <div className="entry-item" key={e.id}>
               <div className="entry-main">
                 <span className="entry-name">
-                  {t && <span className="dot" style={{ background: trackableColor(t) }} />}
+                  {t && <span className="dot" style={{ background: resolveColor(trackableColor(t), isDark) }} />}
                   {t ? `${typeMeta(t.type).icon} ${t.name}` : 'Показатель удалён'}
                 </span>
                 <span className="entry-value">{t ? formatValue(t, e.value) : String(e.value)}</span>

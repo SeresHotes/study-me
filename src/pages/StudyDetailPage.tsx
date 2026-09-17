@@ -6,7 +6,8 @@ import type { Trackable } from '../types';
 import { deleteStudy, deleteTrackable, setStudyStatus, updateTrackable } from '../db/service';
 import { formatDate, studyProgress } from '../lib/date';
 import { typeMeta } from '../lib/trackables';
-import { suggestColor, trackableColor } from '../lib/colors';
+import { suggestColor, trackableColor, resolveColor } from '../lib/colors';
+import { useIsDark } from '../lib/theme';
 import QuickLogModal from '../components/QuickLogModal';
 import AddTrackableForm from '../components/AddTrackableForm';
 import ColorPalette from '../components/ColorPalette';
@@ -89,6 +90,7 @@ function CheckInTab({
 }) {
   const [active, setActive] = useState<Trackable | null>(null);
   const [toast, setToast] = useState('');
+  const isDark = useIsDark();
 
   if (trackables.length === 0) {
     return (
@@ -109,7 +111,7 @@ function CheckInTab({
       </p>
       <div className="quick-grid">
         {trackables.map((t) => {
-          const color = trackableColor(t);
+          const color = resolveColor(trackableColor(t), isDark);
           return (
             <button
               key={t.id}
@@ -153,6 +155,7 @@ function TrackablesTab({
   trackables: Trackable[];
 }) {
   const navigate = useNavigate();
+  const isDark = useIsDark();
   const [adding, setAdding] = useState(false);
   const [editingColor, setEditingColor] = useState<string | null>(null);
 
@@ -174,7 +177,8 @@ function TrackablesTab({
         <p className="note">Ещё нет показателей. Добавь первый.</p>
       )}
       {trackables.map((t) => {
-        const color = trackableColor(t);
+        const canonical = trackableColor(t);
+        const color = resolveColor(canonical, isDark);
         return (
           <div className="list-manage" key={t.id}>
             <div className="list-manage-item">
@@ -197,7 +201,7 @@ function TrackablesTab({
             {editingColor === t.id && (
               <div className="color-edit">
                 <ColorPalette
-                  value={color}
+                  value={canonical}
                   onPick={async (c) => {
                     await updateTrackable(t.id, { color: c });
                     setEditingColor(null);
